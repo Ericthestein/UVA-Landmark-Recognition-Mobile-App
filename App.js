@@ -40,7 +40,6 @@ const MainNavigator = createMaterialBottomTabNavigator({ // createBottomTabNavig
         tabBarLabel: 'Collect',
         tabBarIcon: <Icon name={"map"} size={20} color={"white"}/>,
         gesturesEnabled: true,
-        tabBarVisible: global.authenticated,//global.authenticated === true,
       })
     }
   },

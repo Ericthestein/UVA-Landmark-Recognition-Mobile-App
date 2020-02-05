@@ -13,13 +13,16 @@ import {
     Snackbar,
 } from 'react-native';
 import Constants from 'expo-constants';
-import { Button, TextInput } from 'react-native-paper';
+import {Button, Provider, TextInput} from 'react-native-paper';
 import { Dropdown } from 'react-native-material-dropdown';
 import { Overlay, Button as RNEButton } from 'react-native-elements';
 const { height, width } = Dimensions.get('window');
 import * as ImagePicker from 'expo-image-picker';
 import * as firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
+import AwesomeButton from "react-native-really-awesome-button"
+
+import SiteGetter from "../Components/SiteGetter";
 
 import siteNames from "../SiteNames";
 
@@ -41,7 +44,7 @@ class PickerItem extends React.Component {
         return (
             <Picker.Item label={this.props.siteName} value={this.props.siteName} />
         );
-    }
+    }          
 }
 class SitePicker extends React.Component {
     constructor(props) {
@@ -156,20 +159,18 @@ class TakePicture extends React.Component {
         }
     };
     render() {
-        return (
-            <Button
-                color="black"
+        return(
+            <AwesomeButton
                 onPress={this.onButtonPress}
+                width={2 * width / 5}
+                height={100}
                 style={styles.captureButton}
-                contentStyle={{
-                    borderRadius: 200,
-                    backgroundColor: 'chartreuse',
-                    height: 200,
-                    width: 200,
-                }}>
-                <Text style={styles.circleButton}>{'COLLECT'}</Text>
-            </Button>
-        );
+                backgroundColor={'#de0000'}
+                borderRadius={20}
+                textSize={36}
+                raiseLevel={6}
+            >Collect</AwesomeButton>
+        )
     }
 }
 /*
@@ -184,31 +185,16 @@ class UploadButton extends React.Component {
     }
     render() {
         return (
-            <Button
-                color="black"
+            <AwesomeButton
                 onPress={this.props.onPress}
-                style={{
-                    alignSelf: 'center',
-                    color: 'green',
-                    paddingBottom: 10,
-                    bottom: 0,
-                    flex: 1,
-                    position: 'absolute',
-                    //borderColor: 'black',
-                    //borderWidth: 2
-                }}
-                contentStyle={{
-                    backgroundColor: 'chartreuse',
-                    height: 100,
-                    width: width,
-                    flex: 1,
-                    bottom: 0,
-                    alignSelf: 'flex-end',
-                }}>
-                <Text style={{ justifyContent: 'center' }}>
-                    <Text style={{ flex: 1, fontSize: 36 }}>Upload</Text>
-                </Text>
-            </Button>
+                width={2 * width / 5}
+                height={100}
+                style={styles.captureButton}
+                backgroundColor={'#de0000'}
+                borderRadius={20}
+                textSize={36}
+                raiseLevel={6}
+            >Upload</AwesomeButton>
         );
     }
 }
@@ -227,18 +213,24 @@ class ResultOverlay extends React.Component {
         );
     }
 }
-let defaultImageUri = 'https://firebasestorage.googleapis.com/v0/b/uva-landmark-images.appspot.com/o/UVA%20Historical%20Landmark%20Recognition%20App%20Background%20copy.png?alt=media&token=a70e7b1c-5301-45d5-bf64-8c12b9bee883';
+let defaultImageUri = '../assets/RotundaBackground.png';
 export default class CollectionScreen extends React.Component {
     constructor() {
         super();
         this.state = {
-            selectedSite: siteNames[0],
+            selectedSite: null,
             name: '',
             file: defaultImageUri,
             errorMsg: '',
             computingID: '',
             success: false,
+            siteGetterVisible: false
         };
+    }
+    showSiteGetter = () => {
+        this.setState({
+            siteGetterVisible: true
+        })
     }
     updateName = name => {
         this.setState({
@@ -253,6 +245,7 @@ export default class CollectionScreen extends React.Component {
     updateSiteName = value => {
         this.setState({
             selectedSite: value,
+            siteGetterVisible: false
         });
     };
 
@@ -284,7 +277,31 @@ export default class CollectionScreen extends React.Component {
                                     ':' +
                                     new Date().getTime()
                                 );
-                            ref.put(blob);
+                            ref.put(blob).then(() => {
+                                if (Platform.OS === 'ios' || Platform.OS === 'android') {
+                                    Alert.alert(
+                                        'Success!',
+                                        'Uploaded image for ' + this.state.selectedSite
+                                    );
+                                } else {
+                                    this.setState({
+                                        errorMsg: 'Success!',
+                                    });
+                                }
+                                this.setState({
+                                    success: true,
+                                });
+                                setTimeout(() => {
+                                    this.setState({
+                                        success: false,
+                                        errorMsg: '',
+                                    });
+                                }, 1000 * 5);
+                                this.setState({
+                                    file: defaultImageUri,
+                                });
+                            })
+                            /*
                             if (Platform.OS === 'ios' || Platform.OS === 'android') {
                                 Alert.alert(
                                     'Success!',
@@ -308,6 +325,7 @@ export default class CollectionScreen extends React.Component {
                             this.setState({
                                 file: defaultImageUri,
                             });
+                             */
                             // this.forceUpdate()
                         });
                     });
@@ -328,71 +346,75 @@ export default class CollectionScreen extends React.Component {
     };
     render() {
         return (
-            <ImageBackground
-                style={styles.imageBackground}
-                source={{ uri: this.state.file }}>
-                <TextInput
-                    style={styles.textInput}
-                    //autoCompleteType={''}
-                    defaultValue={''}
-                    onChangeText={this.updateComputingID}
-                    value={this.state.computingID}
-                    label={'Computing ID'}
-                />
-                {this.state.file === defaultImageUri && ( // Picture not yet taken
-                    <View style={styles.container}>
-                        <Text style={styles.title}>
-                            UVA Historical Landmark Recognition
-                        </Text>
-                        <TakePicture parent={this} />
-                    </View>
-                )}
-                {this.state.file !== defaultImageUri && ( // Picture taken
-                    <View
-                        style={{
-                            ...styles.container,
-                            alignContent: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flex: 1,
-                        }}>
-                        <SitePicker
-                            onChangeText={this.updateSiteName}
-                            selectedSite={this.state.selectedSite}
-                            parent={this}
-                        />
-                        <Button
-                            color="white"
-                            onPress={this.back}
-                            style={{
-                                //alignSelf: 'center',
-                                //paddingBottom: 10,
-                                top: -55,
-                                left: 0,
-                                flex: 1,
-                                position: 'absolute',
-                                //borderColor: 'black',
-                                //borderWidth: 2
-                            }}
-                            contentStyle={{
-                                backgroundColor: 'blue',
-                                height: 50,
-                                width: width/2 - 20,
-                                flex: 1,
-                                color: 'white',
-                                textColor: 'white'
-                            }}>
-                            <Text style={{ justifyContent: 'center' }}>
-                                <Text style={{ flex: 1, fontSize: 24 }}>Back</Text>
+            <Provider>
+                <ImageBackground
+                    style={styles.imageBackground}
+                    source={this.state.file === defaultImageUri ? require(defaultImageUri) : { uri: this.state.file }}>
+                    <TextInput
+                        style={styles.textInput}
+                        //autoCompleteType={''}
+                        defaultValue={''}
+                        onChangeText={this.updateComputingID}
+                        value={this.state.computingID}
+                        label={'Computing ID'}
+                    />
+                    {this.state.file === defaultImageUri && ( // Picture not yet taken
+                        <View style={styles.container}>
+                            <Text style={styles.title}>
+                                UVA Historical Landmark Recognition
                             </Text>
-                        </Button>
-                        <UploadButton onPress={this.upload} />
-                    </View>
-                )}
-            </ImageBackground>
+                            <TakePicture parent={this} />
+                        </View>
+                    )}
+                    {this.state.file !== defaultImageUri && ( // Picture taken
+                        <View
+                            style={{
+                                ...styles.container,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flex: 1,
+                            }}>
+                            <SiteGetter
+                                onChoose={this.updateSiteName}
+                                visible={this.state.siteGetterVisible}
+                            />
+                            <Text style={styles.siteSelectionIndicator}>{this.state.selectedSite === null ? "No Site Selected" : this.state.selectedSite}</Text>
+                            <AwesomeButton
+                                onPress={this.showSiteGetter}
+                                width={1 * width / 5}
+                                height={50}
+                                style={styles.siteGetterButton}
+                                backgroundColor={'#076c26'}
+                                borderRadius={20}
+                                textSize={14}
+                                raiseLevel={6}
+                            >Select Site</AwesomeButton>
+                            <AwesomeButton
+                                onPress={this.back}
+                                width={1 * width / 5}
+                                height={50}
+                                style={styles.backButton}
+                                backgroundColor={'#1b18de'}
+                                borderRadius={20}
+                                textSize={14}
+                                raiseLevel={6}
+                            >Cancel</AwesomeButton>
+                            <UploadButton onPress={this.upload} />
+                        </View>
+                    )}
+                </ImageBackground>
+            </Provider>
         );
     }
 }
+/*
+<SitePicker
+    onChangeText={this.updateSiteName}
+    selectedSite={this.state.selectedSite}
+    parent={this}
+/>
+ */
 // <TextInput style={styles.textInput} autoCompleteType={'name'} defaultValue={""} onChangeText={this.updateName} value={this.state.name} label={"Name"}/>
 /* <Text
       style={{
@@ -457,13 +479,14 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
     },
     backButton: {
-        fontSize: 32,
-        left: -10,
-        top: -40,
-        textAlign: 'center',
-        width: width - width / 2,
-        height: 10,
-        position: 'absolute'
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+    },
+    siteGetterButton: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
     },
     pickerStyle: {
         width: width - width / 2,
@@ -497,27 +520,15 @@ const styles = StyleSheet.create({
     captureButton: {
         alignSelf: 'center',
         position: 'absolute',
-        left: '25%',
-        //top: height / 2,
-        bottom: 30,
-        color: 'green',
-        borderColor: 'black',
-        borderWidth: 0,
-        borderRadius: 100,
-        shadowColor: 'black',
-        shadowOffset: { width: 5, height: 5 },
-        shadowRadius: 10,
+        left: '30%',
+        bottom: 0,
     },
-    circleButton: {
-        flex: 1,
-        fontSize: 24,
-        paddingTop: 20,
-        //fontFamily: 'futura',
-        color: 'white',
-        textShadowColor: 'black',
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 5,
-        width: 100,
-        height: 100,
+    siteSelectionIndicator: {
+        position: 'absolute',
+        bottom: 100,
+        width: '100%',
+        fontSize: 20,
+        color: '#ff0000',
+        textAlign: 'center'
     },
 });

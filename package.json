@@ -31,6 +31,7 @@
     "react-native-gesture-handler": "^1.5.3",
     "react-native-material-dropdown": "0.11.1",
     "react-native-paper": "2.16.0",
+    "react-native-really-awesome-button": "^1.6.0",
     "react-native-vector-icons": "^6.6.0",
     "react-native-web": "0.11.7",
     "react-navigation": "^4.0.10",
