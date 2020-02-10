@@ -10,12 +10,12 @@
 
 'use strict';
 
-const requireNativeComponent = require('requireNativeComponent');
+const requireNativeComponent = require('../../ReactNative/requireNativeComponent');
 
-import type {NativeComponent} from 'ReactNative';
-import type {SyntheticEvent} from 'CoreEventTypes';
-import type {ViewStyleProp} from 'StyleSheet';
-import type React from 'React';
+import type {NativeComponent} from '../../Renderer/shims/ReactNative';
+import type {SyntheticEvent} from '../../Types/CoreEventTypes';
+import type {ViewStyleProp} from '../../StyleSheet/StyleSheet';
+import type React from 'react';
 
 type ColorValue = null | string;
 

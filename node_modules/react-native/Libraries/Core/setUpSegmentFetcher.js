@@ -18,7 +18,7 @@ global.__fetchSegment = function(
   options: {|+otaBuildNumber: ?string|},
   callback: (?Error) => void,
 ) {
-  const {SegmentFetcher} = require('NativeModules');
+  const {SegmentFetcher} = require('../BatchedBridge/NativeModules');
   if (!SegmentFetcher) {
     throw new Error(
       'SegmentFetcher is missing. Please ensure that it is ' +

@@ -9,21 +9,21 @@
 
 'use strict';
 
-const ActivityIndicator = require('ActivityIndicator');
-const DeprecatedViewPropTypes = require('DeprecatedViewPropTypes');
-const DeprecatedEdgeInsetsPropType = require('DeprecatedEdgeInsetsPropType');
+const ActivityIndicator = require('../ActivityIndicator/ActivityIndicator');
+const DeprecatedViewPropTypes = require('../../DeprecatedPropTypes/DeprecatedViewPropTypes');
+const DeprecatedEdgeInsetsPropType = require('../../DeprecatedPropTypes/DeprecatedEdgeInsetsPropType');
 const PropTypes = require('prop-types');
-const React = require('React');
-const ReactNative = require('ReactNative');
-const StyleSheet = require('StyleSheet');
-const UIManager = require('UIManager');
-const View = require('View');
-const WebViewShared = require('WebViewShared');
+const React = require('react');
+const ReactNative = require('../../Renderer/shims/ReactNative');
+const StyleSheet = require('../../StyleSheet/StyleSheet');
+const UIManager = require('../../ReactNative/UIManager');
+const View = require('../View/View');
+const WebViewShared = require('./WebViewShared');
 
-const deprecatedPropType = require('deprecatedPropType');
+const deprecatedPropType = require('../../Utilities/deprecatedPropType');
 const keyMirror = require('fbjs/lib/keyMirror');
-const requireNativeComponent = require('requireNativeComponent');
-const resolveAssetSource = require('resolveAssetSource');
+const requireNativeComponent = require('../../ReactNative/requireNativeComponent');
+const resolveAssetSource = require('../../Image/resolveAssetSource');
 
 const RCT_WEBVIEW_REF = 'webview';
 

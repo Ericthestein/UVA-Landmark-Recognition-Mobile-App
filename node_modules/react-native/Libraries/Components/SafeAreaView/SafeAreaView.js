@@ -8,11 +8,11 @@
  * @format
  */
 
-const Platform = require('Platform');
-const React = require('React');
-const View = require('View');
+const Platform = require('../../Utilities/Platform');
+const React = require('react');
+const View = require('../View/View');
 
-import type {ViewProps} from 'ViewPropTypes';
+import type {ViewProps} from '../View/ViewPropTypes';
 
 type Props = $ReadOnly<{|
   ...ViewProps,
@@ -38,7 +38,7 @@ if (Platform.OS === 'android') {
     }
   };
 } else {
-  const RCTSafeAreaViewNativeComponent = require('RCTSafeAreaViewNativeComponent');
+  const RCTSafeAreaViewNativeComponent = require('./RCTSafeAreaViewNativeComponent');
   exported = class SafeAreaView extends React.Component<Props> {
     render(): React.Node {
       return (

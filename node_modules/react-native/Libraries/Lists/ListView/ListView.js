@@ -9,22 +9,22 @@
  */
 'use strict';
 
-const InternalListViewType = require('InternalListViewType');
-const ListViewDataSource = require('ListViewDataSource');
-const Platform = require('Platform');
-const React = require('React');
-const ReactNative = require('ReactNative');
-const RCTScrollViewManager = require('NativeModules').ScrollViewManager;
-const ScrollView = require('ScrollView');
-const ScrollResponder = require('ScrollResponder');
-const StaticRenderer = require('StaticRenderer');
-const View = require('View');
+const InternalListViewType = require('./InternalListViewType');
+const ListViewDataSource = require('./ListViewDataSource');
+const Platform = require('../../Utilities/Platform');
+const React = require('react');
+const ReactNative = require('../../Renderer/shims/ReactNative');
+const RCTScrollViewManager = require('../../BatchedBridge/NativeModules').ScrollViewManager;
+const ScrollView = require('../../Components/ScrollView/ScrollView');
+const ScrollResponder = require('../../Components/ScrollResponder');
+const StaticRenderer = require('../../Components/StaticRenderer');
+const View = require('../../Components/View/View');
 const cloneReferencedElement = require('react-clone-referenced-element');
 const createReactClass = require('create-react-class');
-const isEmpty = require('isEmpty');
-const merge = require('merge');
+const isEmpty = require('../../vendor/core/isEmpty');
+const merge = require('../../vendor/core/merge');
 
-import type {Props as ScrollViewProps} from 'ScrollView';
+import type {Props as ScrollViewProps} from '../../Components/ScrollView/ScrollView';
 
 const DEFAULT_PAGE_SIZE = 1;
 const DEFAULT_INITIAL_ROWS = 10;

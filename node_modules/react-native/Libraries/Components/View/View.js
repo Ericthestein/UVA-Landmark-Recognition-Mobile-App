@@ -10,13 +10,13 @@
 
 'use strict';
 
-const React = require('React');
-const TextAncestor = require('TextAncestor');
-const ViewNativeComponent = require('ViewNativeComponent');
+const React = require('react');
+const TextAncestor = require('../../Text/TextAncestor');
+const ViewNativeComponent = require('./ViewNativeComponent');
 
 const invariant = require('invariant');
 
-import type {ViewProps} from 'ViewPropTypes';
+import type {ViewProps} from './ViewPropTypes';
 
 export type Props = ViewProps;
 

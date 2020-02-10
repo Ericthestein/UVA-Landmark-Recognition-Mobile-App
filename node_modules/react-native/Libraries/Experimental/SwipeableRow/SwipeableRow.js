@@ -10,15 +10,15 @@
 
 'use strict';
 
-const Animated = require('Animated');
-const I18nManager = require('I18nManager');
-const PanResponder = require('PanResponder');
-const React = require('React');
-const StyleSheet = require('StyleSheet');
-const View = require('View');
+const Animated = require('../../Animated/src/Animated');
+const I18nManager = require('../../ReactNative/I18nManager');
+const PanResponder = require('../../Interaction/PanResponder');
+const React = require('react');
+const StyleSheet = require('../../StyleSheet/StyleSheet');
+const View = require('../../Components/View/View');
 
-import type {LayoutEvent, PressEvent} from 'CoreEventTypes';
-import type {GestureState} from 'PanResponder';
+import type {LayoutEvent, PressEvent} from '../../Types/CoreEventTypes';
+import type {GestureState} from '../../Interaction/PanResponder';
 
 const IS_RTL = I18nManager.isRTL;
 

@@ -11,17 +11,17 @@
  */
 
 "use strict";
-require("InitializeCore");
-var ReactNativeViewConfigRegistry = require("ReactNativeViewConfigRegistry"),
-  UIManager = require("UIManager"),
+require('../../Core/InitializeCore');
+var ReactNativeViewConfigRegistry = require('../shims/ReactNativeViewConfigRegistry'),
+  UIManager = require('../../ReactNative/UIManager'),
   React = require("react"),
-  deepDiffer = require("deepDiffer"),
-  flattenStyle = require("flattenStyle"),
-  TextInputState = require("TextInputState"),
-  FabricUIManager = require("FabricUIManager"),
+  deepDiffer = require('../../Utilities/differ/deepDiffer'),
+  flattenStyle = require('../../StyleSheet/flattenStyle'),
+  TextInputState = require('../../Components/TextInput/TextInputState'),
+  FabricUIManager = require('../../ReactNative/FabricUIManager'),
   tracing = require("scheduler/tracing"),
   scheduler = require("scheduler"),
-  ExceptionsManager = require("ExceptionsManager");
+  ExceptionsManager = require('../../Core/ExceptionsManager');
 function invariant(condition, format, a, b, c, d, e, f) {
   if (!condition) {
     condition = void 0;

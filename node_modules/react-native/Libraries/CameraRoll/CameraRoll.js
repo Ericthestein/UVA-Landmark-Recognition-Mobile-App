@@ -11,9 +11,9 @@
 
 const PropTypes = require('prop-types');
 const {checkPropTypes} = PropTypes;
-const RCTCameraRollManager = require('NativeModules').CameraRollManager;
+const RCTCameraRollManager = require('../BatchedBridge/NativeModules').CameraRollManager;
 
-const deprecatedCreateStrictShapeTypeChecker = require('deprecatedCreateStrictShapeTypeChecker');
+const deprecatedCreateStrictShapeTypeChecker = require('../DeprecatedPropTypes/deprecatedCreateStrictShapeTypeChecker');
 const invariant = require('invariant');
 
 const GROUP_TYPES_OPTIONS = {

@@ -10,11 +10,11 @@
 
 'use strict';
 
-const React = require('React');
-const StyleSheet = require('StyleSheet');
-const View = require('View');
+const React = require('react');
+const StyleSheet = require('../../StyleSheet/StyleSheet');
+const View = require('../../Components/View/View');
 
-import type {ViewStyleProp} from 'StyleSheet';
+import type {ViewStyleProp} from '../../StyleSheet/StyleSheet';
 
 type Props = $ReadOnly<{|
   style?: ?ViewStyleProp,

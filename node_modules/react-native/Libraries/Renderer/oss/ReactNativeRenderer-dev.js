@@ -16,19 +16,19 @@ if (__DEV__) {
   (function() {
 "use strict";
 
-require("InitializeCore");
-var ReactNativeViewConfigRegistry = require("ReactNativeViewConfigRegistry");
-var UIManager = require("UIManager");
-var RCTEventEmitter = require("RCTEventEmitter");
+require('../../Core/InitializeCore');
+var ReactNativeViewConfigRegistry = require('../shims/ReactNativeViewConfigRegistry');
+var UIManager = require('../../ReactNative/UIManager');
+var RCTEventEmitter = require('../../EventEmitter/RCTEventEmitter');
 var React = require("react");
-var deepFreezeAndThrowOnMutationInDev = require("deepFreezeAndThrowOnMutationInDev");
-var deepDiffer = require("deepDiffer");
-var flattenStyle = require("flattenStyle");
-var TextInputState = require("TextInputState");
+var deepFreezeAndThrowOnMutationInDev = require('../../Utilities/deepFreezeAndThrowOnMutationInDev');
+var deepDiffer = require('../../Utilities/differ/deepDiffer');
+var flattenStyle = require('../../StyleSheet/flattenStyle');
+var TextInputState = require('../../Components/TextInput/TextInputState');
 var checkPropTypes = require("prop-types/checkPropTypes");
 var tracing = require("scheduler/tracing");
 var scheduler = require("scheduler");
-var ExceptionsManager = require("ExceptionsManager");
+var ExceptionsManager = require('../../Core/ExceptionsManager');
 
 /**
  * Use invariant() to assert state which your program assumes to be true.

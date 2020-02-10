@@ -13,6 +13,7 @@ const { height, width } = Dimensions.get('window');
 import * as firebase from 'firebase';
 import CollectionScreen from "./Screens/CollectionScreen";
 import PredictionScreen from "./Screens/PredictionScreen";
+import PredictionScreenTemp from "./Screens/PredictionScreenTemp";
 import firebaseConfig from "./FirebaseConfig";
 
 //import {FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_DATABASEURL, FIREBASE_STORAGEBUCKET} from 'react-native-dotenv'
@@ -43,8 +44,18 @@ const MainNavigator = createMaterialBottomTabNavigator({ // createBottomTabNavig
       })
     }
   },
+  /*
   PredictionScreen: {
     screen: PredictionScreen,
+    navigationOptions: () => ({
+      title: "Predict",
+      tabBarLabel: 'Predict',
+      tabBarIcon: <Icon name={"list"} size={20} color={"white"} />,
+    })
+  },
+   */
+  PredictionScreenTemp: {
+    screen: PredictionScreenTemp,
     navigationOptions: () => ({
       title: "Predict",
       tabBarLabel: 'Predict',

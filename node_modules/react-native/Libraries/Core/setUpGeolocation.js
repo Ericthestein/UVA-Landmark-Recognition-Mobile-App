@@ -9,7 +9,7 @@
  */
 'use strict';
 
-const {polyfillObjectProperty} = require('PolyfillFunctions');
+const {polyfillObjectProperty} = require('../Utilities/PolyfillFunctions');
 
 /**
  * Set up Geolocation.
@@ -22,4 +22,4 @@ if (navigator === undefined) {
 
 // see https://github.com/facebook/react-native/issues/10881
 polyfillObjectProperty(navigator, 'product', () => 'ReactNative');
-polyfillObjectProperty(navigator, 'geolocation', () => require('Geolocation'));
+polyfillObjectProperty(navigator, 'geolocation', () => require('../Geolocation/Geolocation'));

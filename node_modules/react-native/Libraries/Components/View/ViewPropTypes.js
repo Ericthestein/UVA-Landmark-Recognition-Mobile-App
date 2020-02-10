@@ -10,17 +10,17 @@
 
 'use strict';
 
-import type {PressEvent, Layout, LayoutEvent} from 'CoreEventTypes';
-import type {EdgeInsetsProp} from 'EdgeInsetsPropType';
-import type React from 'React';
-import type {ViewStyleProp} from 'StyleSheet';
-import type {TVViewProps} from 'TVViewPropTypes';
+import type {PressEvent, Layout, LayoutEvent} from '../../Types/CoreEventTypes';
+import type {EdgeInsetsProp} from '../../StyleSheet/EdgeInsetsPropType';
+import type React from 'react';
+import type {ViewStyleProp} from '../../StyleSheet/StyleSheet';
+import type {TVViewProps} from '../AppleTV/TVViewPropTypes';
 import type {
   AccessibilityComponentType,
   AccessibilityTrait,
   AccessibilityRole,
   AccessibilityStates,
-} from 'ViewAccessibility';
+} from './ViewAccessibility';
 
 export type ViewLayout = Layout;
 export type ViewLayoutEvent = LayoutEvent;

@@ -10,28 +10,28 @@
 
 'use strict';
 
-const ActivityIndicator = require('ActivityIndicator');
-const DeprecatedViewPropTypes = require('DeprecatedViewPropTypes');
-const DeprecatedEdgeInsetsPropType = require('DeprecatedEdgeInsetsPropType');
-const Linking = require('Linking');
+const ActivityIndicator = require('../ActivityIndicator/ActivityIndicator');
+const DeprecatedViewPropTypes = require('../../DeprecatedPropTypes/DeprecatedViewPropTypes');
+const DeprecatedEdgeInsetsPropType = require('../../DeprecatedPropTypes/DeprecatedEdgeInsetsPropType');
+const Linking = require('../../Linking/Linking');
 const PropTypes = require('prop-types');
-const React = require('React');
-const ReactNative = require('ReactNative');
-const StyleSheet = require('StyleSheet');
-const Text = require('Text');
-const UIManager = require('UIManager');
-const View = require('View');
-const WebViewShared = require('WebViewShared');
+const React = require('react');
+const ReactNative = require('../../Renderer/shims/ReactNative');
+const StyleSheet = require('../../StyleSheet/StyleSheet');
+const Text = require('../../Text/Text');
+const UIManager = require('../../ReactNative/UIManager');
+const View = require('../View/View');
+const WebViewShared = require('./WebViewShared');
 
-const deprecatedPropType = require('deprecatedPropType');
+const deprecatedPropType = require('../../Utilities/deprecatedPropType');
 const invariant = require('invariant');
 const keyMirror = require('fbjs/lib/keyMirror');
-const processDecelerationRate = require('processDecelerationRate');
-const requireNativeComponent = require('requireNativeComponent');
-const resolveAssetSource = require('resolveAssetSource');
+const processDecelerationRate = require('../ScrollView/processDecelerationRate');
+const requireNativeComponent = require('../../ReactNative/requireNativeComponent');
+const resolveAssetSource = require('../../Image/resolveAssetSource');
 
-const RCTWebViewManager = require('NativeModules').WebViewManager;
-const RCTWKWebViewManager = require('NativeModules').WKWebViewManager;
+const RCTWebViewManager = require('../../BatchedBridge/NativeModules').WebViewManager;
+const RCTWKWebViewManager = require('../../BatchedBridge/NativeModules').WKWebViewManager;
 
 const BGWASH = 'rgba(255,255,255,0.8)';
 const RCT_WEBVIEW_REF = 'webview';

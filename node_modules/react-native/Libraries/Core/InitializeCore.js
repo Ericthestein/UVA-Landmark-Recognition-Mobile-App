@@ -27,24 +27,24 @@
 
 const start = Date.now();
 
-require('setUpGlobals');
-require('polyfillES6Collections');
-require('setUpSystrace');
-require('setUpErrorHandling');
-require('checkNativeVersion');
-require('polyfillPromise');
-require('setUpRegeneratorRuntime');
-require('setUpTimers');
-require('setUpXHR');
-require('setUpAlert');
-require('setUpGeolocation');
-require('setUpBatchedBridge');
-require('setUpSegmentFetcher');
+require('./setUpGlobals');
+require('./polyfillES6Collections');
+require('./setUpSystrace');
+require('./setUpErrorHandling');
+require('./checkNativeVersion');
+require('./polyfillPromise');
+require('./setUpRegeneratorRuntime');
+require('./setUpTimers');
+require('./setUpXHR');
+require('./setUpAlert');
+require('./setUpGeolocation');
+require('./setUpBatchedBridge');
+require('./setUpSegmentFetcher');
 if (__DEV__) {
-  require('setUpDeveloperTools');
+  require('./setUpDeveloperTools');
 }
 
-const PerformanceLogger = require('PerformanceLogger');
+const PerformanceLogger = require('../Utilities/PerformanceLogger');
 // We could just call PerformanceLogger.markPoint at the top of the file,
 // but then we'd be excluding the time it took to require PerformanceLogger.
 // Instead, we just use Date.now and backdate the timestamp.

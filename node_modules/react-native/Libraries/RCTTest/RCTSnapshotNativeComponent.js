@@ -10,9 +10,9 @@
 
 'use strict';
 
-import type {SyntheticEvent} from 'CoreEventTypes';
-import type {ViewProps} from 'ViewPropTypes';
-import type {NativeComponent} from 'ReactNative';
+import type {SyntheticEvent} from '../Types/CoreEventTypes';
+import type {ViewProps} from '../Components/View/ViewPropTypes';
+import type {NativeComponent} from '../Renderer/shims/ReactNative';
 
 type SnapshotReadyEvent = SyntheticEvent<
   $ReadOnly<{
@@ -28,6 +28,6 @@ type NativeProps = $ReadOnly<{|
 
 type SnapshotViewNativeType = Class<NativeComponent<NativeProps>>;
 
-const requireNativeComponent = require('requireNativeComponent');
+const requireNativeComponent = require('../ReactNative/requireNativeComponent');
 
 module.exports = ((requireNativeComponent('RCTSnapshot'):any): SnapshotViewNativeType);

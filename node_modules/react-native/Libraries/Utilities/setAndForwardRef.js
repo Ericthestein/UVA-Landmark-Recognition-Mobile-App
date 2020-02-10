@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type React from 'React';
+import type React from 'react';
 
 type Args = $ReadOnly<{|
   getForwardedRef: () => ?React.Ref<any>,

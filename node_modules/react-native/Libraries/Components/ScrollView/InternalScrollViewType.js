@@ -8,7 +8,7 @@
  * @flow
  */
 
-const ReactNative = require('ReactNative');
+const ReactNative = require('../../Renderer/shims/ReactNative');
 
 // This class is purely a facsimile of ScrollView so that we can
 // properly type it with Flow before migrating ScrollView off of

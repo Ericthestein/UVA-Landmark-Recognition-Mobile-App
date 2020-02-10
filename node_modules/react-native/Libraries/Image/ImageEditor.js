@@ -9,7 +9,7 @@
  */
 'use strict';
 
-const RCTImageEditingManager = require('NativeModules').ImageEditingManager;
+const RCTImageEditingManager = require('../BatchedBridge/NativeModules').ImageEditingManager;
 
 type ImageCropData = {
   /**

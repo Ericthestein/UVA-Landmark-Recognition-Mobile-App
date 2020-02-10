@@ -10,7 +10,7 @@
 
 'use strict';
 
-const TimePickerModule = require('NativeModules').TimePickerAndroid;
+const TimePickerModule = require('../../BatchedBridge/NativeModules').TimePickerAndroid;
 
 import type {
   TimePickerOptions,

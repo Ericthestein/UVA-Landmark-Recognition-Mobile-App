@@ -10,21 +10,21 @@
 
 'use strict';
 
-const React = require('React');
-const StyleSheet = require('StyleSheet');
-const UIManager = require('UIManager');
-const View = require('View');
+const React = require('react');
+const StyleSheet = require('../StyleSheet/StyleSheet');
+const UIManager = require('../ReactNative/UIManager');
+const View = require('../Components/View/View');
 
-const {TestModule} = require('NativeModules');
+const {TestModule} = require('../BatchedBridge/NativeModules');
 
-import type {SyntheticEvent} from 'CoreEventTypes';
-import type {ViewProps} from 'ViewPropTypes';
+import type {SyntheticEvent} from '../Types/CoreEventTypes';
+import type {ViewProps} from '../Components/View/ViewPropTypes';
 
 // Verify that RCTSnapshot is part of the UIManager since it is only loaded
 // if you have linked against RCTTest like in tests, otherwise we will have
 // a warning printed out
 const RCTSnapshot = UIManager.getViewManagerConfig('RCTSnapshot')
-  ? require('RCTSnapshotNativeComponent')
+  ? require('./RCTSnapshotNativeComponent')
   : View;
 
 type SnapshotReadyEvent = SyntheticEvent<

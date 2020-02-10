@@ -8,8 +8,8 @@
  * @flow
  */
 
-const ReactNative = require('ReactNative');
-const UIManager = require('UIManager');
+const ReactNative = require('../Renderer/shims/ReactNative');
+const UIManager = require('./UIManager');
 
 /**
  * Capture an image of the screen, window or an individual view. The image

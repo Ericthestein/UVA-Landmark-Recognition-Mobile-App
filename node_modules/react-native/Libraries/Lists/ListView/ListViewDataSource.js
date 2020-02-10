@@ -10,7 +10,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const isEmpty = require('isEmpty');
+const isEmpty = require('../../vendor/core/isEmpty');
 /* $FlowFixMe(>=0.54.0 site=react_native_oss) This comment suppresses an error
  * found when Flow v0.54 was deployed. To see the error delete this comment and
  * run Flow. */

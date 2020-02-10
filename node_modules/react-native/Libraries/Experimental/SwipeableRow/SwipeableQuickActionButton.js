@@ -10,14 +10,14 @@
 
 'use strict';
 
-const DeprecatedViewPropTypes = require('DeprecatedViewPropTypes');
-const Image = require('Image');
-const React = require('React');
-const Text = require('Text');
-const TouchableHighlight = require('TouchableHighlight');
-const View = require('View');
+const DeprecatedViewPropTypes = require('../../DeprecatedPropTypes/DeprecatedViewPropTypes');
+const Image = require('../../Image/Image');
+const React = require('react');
+const Text = require('../../Text/Text');
+const TouchableHighlight = require('../../Components/Touchable/TouchableHighlight');
+const View = require('../../Components/View/View');
 
-import type {ImageSource} from 'ImageSource';
+import type {ImageSource} from '../../Image/ImageSource';
 
 /**
  * Standard set of quick action buttons that can, if the user chooses, be used

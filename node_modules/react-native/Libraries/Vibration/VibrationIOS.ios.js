@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RCTVibration = require('NativeModules').Vibration;
+const RCTVibration = require('../BatchedBridge/NativeModules').Vibration;
 
 const invariant = require('invariant');
 const warning = require('fbjs/lib/warning');

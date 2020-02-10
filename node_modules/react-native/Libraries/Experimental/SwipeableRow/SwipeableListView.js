@@ -10,10 +10,10 @@
 
 'use strict';
 
-const ListView = require('ListView');
-const React = require('React');
-const SwipeableListViewDataSource = require('SwipeableListViewDataSource');
-const SwipeableRow = require('SwipeableRow');
+const ListView = require('../../Lists/ListView/ListView');
+const React = require('react');
+const SwipeableListViewDataSource = require('./SwipeableListViewDataSource');
+const SwipeableRow = require('./SwipeableRow');
 
 type ListViewProps = React.ElementConfig<typeof ListView>;
 
