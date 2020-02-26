@@ -180,9 +180,7 @@ export default (routeConfigs, config = {}) => {
 
         if (index === -1) {
           throw new Error(
-            `There is no route named '${
-              action.routeName
-            }' in the navigator with the key '${action.key}'.\n` +
+            `There is no route named '${action.routeName}' in the navigator with the key '${action.key}'.\n` +
               `Must be one of: ${state.routes
                 .map(route => `'${route.routeName}'`)
                 .join(',')}`

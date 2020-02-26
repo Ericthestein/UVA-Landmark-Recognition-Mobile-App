@@ -6,15 +6,18 @@ import {
     ActivityIndicator,
     StatusBar,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    Dimensions
 } from 'react-native'
 import * as tf from '@tensorflow/tfjs'
-import { fetch } from '@tensorflow/tfjs-react-native'
+import { fetch, asyncStorageIO } from '@tensorflow/tfjs-react-native'
+import {AsyncStorage} from "react-native"
 import * as mobilenet from '@tensorflow-models/mobilenet'
 import * as jpeg from 'jpeg-js'
 import * as ImagePicker from 'expo-image-picker'
 import Constants from 'expo-constants'
 import * as Permissions from 'expo-permissions'
+import AwesomeButton from "react-native-really-awesome-button";
 
 let ML_Model_Link = 'https://raw.githubusercontent.com/sg2nq/TFJS_model/master/model.json' //'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json'//'./tfjs/model.json' //'https://raw.githubusercontent.com/sg2nq/TFJS_model/master/model.json' //'./tfjs/model.json'
 
@@ -22,6 +25,10 @@ let class_names = ['AcademicalVillage', 'AldermanLibrary', 'AlumniHall', 'Aquati
     'BravoHall', 'BrooksHall', 'ClarkHall', 'MadisonHall', 'MinorHall', 'NewCabellHall',
     'NewcombHall', 'OldCabellHall', 'OlssonHall', 'RiceHall', 'Rotunda', 'ScottStadium',
     'ThorntonHall', 'UniversityChapel']
+
+const predictionsLimit = 3;
+
+const { height, width } = Dimensions.get('window');
 
 export default class PredictionScreenTemp extends React.Component {
     state = {
@@ -31,7 +38,7 @@ export default class PredictionScreenTemp extends React.Component {
         image: null
     }
 
-    async componentDidMount() {
+    async componentDidMount(){
         await tf.ready()
         this.setState({
             isTfReady: true
@@ -42,6 +49,9 @@ export default class PredictionScreenTemp extends React.Component {
             console.log("Model has been loaded")
             this.setState({
                 isModelReady: true
+            })
+            model.save(asyncStorageIO('landmark-model')).then((saveResults) => {
+                console.log(saveResults)
             })
         }).catch((err) => {console.log("Error loading model: " + err)})
         this.getPermissionAsync()
@@ -101,19 +111,32 @@ export default class PredictionScreenTemp extends React.Component {
     }
 
     classifyImage = async () => {
+        console.log("classifying image")
         try {
+            this.setState({
+                predictions: null
+            })
             const imageAssetPath = Image.resolveAssetSource(this.state.image)
+            console.log("got image asset path")
             const response = await fetch(imageAssetPath.uri, {}, { isBinary: true })
+            console.log("got binary response")
             const rawImageData = await response.arrayBuffer()
+            console.log("converted to array buffer")
             const imageTensor = this.imageToTensor(rawImageData)
+            console.log("converted to tensor")
             let imageTensor2 = imageTensor.expandDims(0)
-            console.log(imageTensor2)
+            console.log("expandedDims")
+            //console.log(imageTensor2)
             console.log("Predicting...")
-            const predictions = await this.model.predict(imageTensor2)
+            const predictions = await this.model.predict(imageTensor2, {batchSize: 4, verbose: true}) // causes for subsequent camera uses to cause crash
             console.log("Done predicting")
             let results = await this.tensorResponseToString(predictions)
-            console.log(results)
-            this.setState({ predictions: results })
+            let shortenedResults = [];
+            for (var i = 0; i < predictionsLimit; i++) {
+                results[i].rank = i + 1
+                shortenedResults[i] = results[i]
+            }
+            this.setState({ predictions: shortenedResults })
         } catch (error) {
             console.log(error)
         }
@@ -153,10 +176,35 @@ export default class PredictionScreenTemp extends React.Component {
         }
     }
 
+    takePicture = async() => {
+        try {
+            console.log("Taking picture")
+            let response = await ImagePicker.launchCameraAsync({
+                mediaTypes: "Images",
+                allowsEditing: true, // necessary
+                aspect: [4, 3]
+            })
+            if (!response.cancelled) {
+                console.log("setting source")
+                const source = {uri: response.uri}
+                this.setState({
+                    image: source
+                });
+                //setTimeout(() => {
+                    this.classifyImage()
+                //}, 1000)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     renderPrediction = prediction => {
+        //console.log(prediction)
+        let displayConfidence = Math.round((prediction.confidence * 100) * 100)/100
         return (
             <Text key={prediction.className} style={styles.text}>
-                {prediction.className}
+                #{prediction.rank}: {prediction.className} - {displayConfidence}%
             </Text>
         )
     }
@@ -202,9 +250,18 @@ export default class PredictionScreenTemp extends React.Component {
                     predictions.map(p => this.renderPrediction(p))}
 
                 </View>
+                <AwesomeButton
+                    onPress={isModelReady ? this.takePicture : undefined}
+                    width={2 * width / 5}
+                    height={100}
+                    style={styles.captureButton}
+                    backgroundColor={'#36de00'}
+                    borderRadius={20}
+                    textSize={24}
+                    raiseLevel={6}
+                >Take Picture</AwesomeButton>
                 <View style={styles.footer}>
-                    <Text style={styles.poweredBy}>Powered by:</Text>
-                    <Image source={{}} style={styles.tfLogo} />
+
                 </View>
             </View>
         )

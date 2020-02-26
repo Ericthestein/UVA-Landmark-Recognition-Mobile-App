@@ -224,7 +224,8 @@ export default class CollectionScreen extends React.Component {
             errorMsg: '',
             computingID: '',
             success: false,
-            siteGetterVisible: false
+            siteGetterVisible: false,
+            uploading: false
         };
     }
     showSiteGetter = () => {
@@ -258,13 +259,16 @@ export default class CollectionScreen extends React.Component {
     upload = () => {
         if (this.state.success === false) {
             // Prevent spam
-            if (this.state.selectedSite != null) {
+            if (this.state.selectedSite != null && !this.state.uploading) {
                 if (this.state.file !== defaultImageUri) {
                     let compID = this.state.computingID;
                     if (this.state.computingID === '') {
                         compID = 'ANON';
                     }
                     let imageUri = this.state.file;
+                    this.setState({
+                        uploading: true
+                    })
                     fetch(imageUri).then(response => {
                         response.blob().then(blob => {
                             let ref = firebase
@@ -290,11 +294,13 @@ export default class CollectionScreen extends React.Component {
                                 }
                                 this.setState({
                                     success: true,
+                                    uploading: false
                                 });
                                 setTimeout(() => {
                                     this.setState({
                                         success: false,
                                         errorMsg: '',
+                                        uploading: false
                                     });
                                 }, 1000 * 5);
                                 this.setState({
@@ -379,6 +385,7 @@ export default class CollectionScreen extends React.Component {
                                 onChoose={this.updateSiteName}
                                 visible={this.state.siteGetterVisible}
                             />
+                            <Text style={styles.uploadingIndicator}>{this.state.uploading ? "Uploading..." : ""}</Text>
                             <Text style={styles.siteSelectionIndicator}>{this.state.selectedSite === null ? "No Site Selected" : this.state.selectedSite}</Text>
                             <AwesomeButton
                                 onPress={this.showSiteGetter}
@@ -531,4 +538,29 @@ const styles = StyleSheet.create({
         color: '#ff0000',
         textAlign: 'center'
     },
+    uploadingIndicator: {
+        position: 'absolute',
+        bottom: 140,
+        width: '100%',
+        fontSize: 20,
+        color: '#ff0000',
+        textAlign: 'center'
+    }
 });
+
+/*
+{
+  "plugins": [
+    ["@babel/plugin-transform-typescript", { "allowNamespaces": true }]
+  ]
+}
+ */
+
+/*
+module.exports = function(api) {
+  api.cache(true)
+  return {
+    presets: ['babel-preset-expo', "@babel/env", "@babel/preset-flow"]
+  }
+};
+ */
