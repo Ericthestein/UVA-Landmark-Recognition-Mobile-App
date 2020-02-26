@@ -1,13 +1,13 @@
-# Sample Snack app
+# UVA Landmark Recognition Mobile App
 
-Welcome to Expo!
+This repository houses the source code for the UVA Landmark Recognition App, currently available on iOS via [TestFlight](https://testflight.apple.com/join/qwiaF1SD) and on Android via the [Google Play Store](https://play.google.com/store/apps/details?id=com.ericstein.uvalandmarkrecognition&hl=en_US).
 
-Open the `App.js` file to start writing some code. You can preview the changes directly on your phone or tablet by clicking the **Run** button or use the simulator by clicking **Tap to Play**. When you're done, click **Save** and share the link!
+This app has two main use cases: 
+1) acquiring data for use in training a computer vision model
+2) allowing users to test such a model using their camera or image library
 
-When you're ready to see everything that Expo provides (or if you want to use your own editor) you can **Export** your project and use it with [expo-cli](https://docs.expo.io/versions/latest/introduction/installation.html).
+## Data Acquisition
+For data storage, this app uses Firebase. Firebase project keys can be specified in `FirebaseConfig.js`, and all relevant code used in the collection screen can be found and modified in `Screens/CollectionScreen.js`. Landmark category names can be specified in `SiteNames.js`.
 
-Projects created in Snack are publicly available, so you can easily share the link to this project via link, or embed it on a web page with the **Embed** button.
-
-If you're having problems, you can tweet to us [@expo](https://twitter.com/expo) or ask in our [forums](https://forums.expo.io).
-
-Snack is Open Source. You can find the code on the [GitHub repo](https://github.com/expo/snack-web).
+## Prediction
+Once the prediction screen is initialized (`Screens/PredictionScreen.js`), a model is downloaded from a pre-defined URL and loaded using [tf.js](https://www.tensorflow.org/js). Afterwards, users are able to provide an image by either selecting one from their device's image library or taking a photo using their device's camera. This image is then converted into a tensor and appropriately pre-processed to allow for prediction to occur. Upon prediction, the app displays the top-3 prediction results along with their confidence metrics.
