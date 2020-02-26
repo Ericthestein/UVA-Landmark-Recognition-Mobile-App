@@ -50,9 +50,11 @@ export default class PredictionScreenTemp extends React.Component {
             this.setState({
                 isModelReady: true
             })
+            /*
             model.save(asyncStorageIO('landmark-model')).then((saveResults) => {
                 console.log(saveResults)
             })
+             */
         }).catch((err) => {console.log("Error loading model: " + err)})
         this.getPermissionAsync()
     }
