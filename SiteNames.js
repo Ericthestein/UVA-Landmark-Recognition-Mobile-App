@@ -1,3 +1,6 @@
+// Edit siteNames to include the landmarks you desire
+// This will affect the labels that users can choose from when collecting and uploading data
+
 const siteNames = [
     'Scott Stadium',
     'Rice Hall',

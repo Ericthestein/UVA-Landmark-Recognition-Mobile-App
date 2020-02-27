@@ -24,111 +24,8 @@ import AwesomeButton from "react-native-really-awesome-button"
 
 import SiteGetter from "../Components/SiteGetter";
 
-import siteNames from "../SiteNames";
+let defaultImageUri = '../assets/RotundaBackground.png'; // the default image to display as the background of this screen (when the user is not uploading an image)
 
-// Convert into React Native Paper Dropdown data
-var siteNamesData = [];
-siteNames.map(val => {
-    let newObject = {
-        value: val,
-        label: val,
-    };
-    siteNamesData.push(newObject);
-});
-
-class PickerItem extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-        return (
-            <Picker.Item label={this.props.siteName} value={this.props.siteName} />
-        );
-    }          
-}
-class SitePicker extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-        if (Platform.OS === 'ios' || Platform.OS === 'android') {
-            console.log("CORRECT")
-            return (
-                <View
-                    style={{
-                        position: 'absolute',
-                        height: 65,
-                        width: width,
-                        top: 10,
-                        backgroundColor: 'white',
-                    }}>
-                    <Dropdown
-                        label={'Landmark'}
-                        data={siteNamesData}
-                        onChangeText={this.props.onChangeText}
-                        containerStyle={{ ...styles.dropdownContainerStyle, flex: 1 }}
-                        pickerStyle={{ flex: 1 }}
-                        overlayStyle={{ flex: 1 }}
-                    />
-                </View>
-            );
-        } else {
-            // in browser
-            return (
-                <Picker
-                    selectedValue={this.props.selectedSite}
-                    onValueChange={this.props.onChangeText}
-                    style={{
-                        ...styles.pickerStyle,
-                        position: 'absolute',
-                        paddingBottom: 100,
-                        bottom: 100,
-                        width: '100%',
-                        height: 50,
-                    }}
-                    itemStyle={styles.itemStyle}
-                    prompt={'Select a site...'}>
-                    {siteNames.map(siteName => {
-                        return <PickerItem siteName={siteName} />;
-                    })}
-                </Picker>
-            );
-        }
-    }
-}
-class SelectFile extends React.Component {
-    constructor(props) {
-        super(props);
-        this.getPermissionsAsync();
-    }
-    onButtonPress = async () => {
-        ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'Images',
-            allowsEditing: false,
-        }).then(result => {
-            if (!result.cancelled) {
-                this.props.parent.setState({
-                    file: result.uri,
-                });
-                this.props.parent.forceUpdate();
-            }
-        });
-    };
-    getPermissionsAsync = async () => {
-        if (Constants.platform.ios) {
-            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-            if (status !== 'granted') {
-            }
-        }
-    };
-    render() {
-        return (
-            <Button onPress={this.onButtonPress} style={styles.captureButton}>
-                Select Image
-            </Button>
-        );
-    }
-}
 class TakePicture extends React.Component {
     constructor(props) {
         super(props);
@@ -173,12 +70,7 @@ class TakePicture extends React.Component {
         )
     }
 }
-/*
-<Text style={{ justifyContent: 'center' }}>
-      <Text style={{ flex: 1, fontSize: 36, paddingTop: 20 }}>COLLECT</Text>
-      <Text style={{ flex: 1, fontSize: 24 }}>Image</Text>
-    </Text>
-    */
+
 class UploadButton extends React.Component {
     constructor(props) {
         super(props);
@@ -198,22 +90,10 @@ class UploadButton extends React.Component {
         );
     }
 }
-class ResultOverlay extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-        return (
-            <Overlay
-                isVisible={this.props.success}
-                windowBackgroundColor=""
-                overlayBackgroundColor="">
-                <Text>Hello from Overlay!</Text>
-            </Overlay>
-        );
-    }
-}
-let defaultImageUri = '../assets/RotundaBackground.png';
+
+/**
+ * CollectionScreen - The main component for the Collection screen
+ */
 export default class CollectionScreen extends React.Component {
     constructor() {
         super();
@@ -224,24 +104,34 @@ export default class CollectionScreen extends React.Component {
             errorMsg: '',
             computingID: '',
             success: false,
-            siteGetterVisible: false
+            siteGetterVisible: false,
+            uploading: false
         };
     }
+
+    /**
+     * Display the siteGetter to get a site name as input from the user
+     */
     showSiteGetter = () => {
         this.setState({
             siteGetterVisible: true
         })
     }
-    updateName = name => {
-        this.setState({
-            name: name,
-        });
-    };
+
+    /**
+     * Update the recorded computing ID of the current user
+     * @param ID - the new ID to remember
+     */
     updateComputingID = ID => {
         this.setState({
             computingID: ID,
         });
     };
+
+    /**
+     * Update the currently-selected site name
+     * @param value - the site name (data label) chosen
+     */
     updateSiteName = value => {
         this.setState({
             selectedSite: value,
@@ -249,24 +139,34 @@ export default class CollectionScreen extends React.Component {
         });
     };
 
+    /**
+     * Reset the screen and discard current collection progress
+     */
     back = () => {
         this.setState({
             file: defaultImageUri,
         });
     }
 
+    /**
+     * Upload the latest image selected with the chosen data label to Firebase
+     */
     upload = () => {
-        if (this.state.success === false) {
+        if (this.state.success === false) { // if did not just finish uploading
             // Prevent spam
-            if (this.state.selectedSite != null) {
-                if (this.state.file !== defaultImageUri) {
+            if (this.state.selectedSite != null && !this.state.uploading) { // if a site was selected and not already uploading
+                if (this.state.file !== defaultImageUri) { // if an image was selected
                     let compID = this.state.computingID;
                     if (this.state.computingID === '') {
-                        compID = 'ANON';
+                        compID = 'ANON'; // set compID to a default value if none was provided
                     }
                     let imageUri = this.state.file;
-                    fetch(imageUri).then(response => {
-                        response.blob().then(blob => {
+                    this.setState({ // debounce + prevent spam
+                        uploading: true
+                    })
+                    fetch(imageUri).then(response => { // fetch the imageUri
+                        response.blob().then(blob => { // get a blob of the fetch response
+                            // Construct a path/name for the image in the Firebase storage container
                             let ref = firebase
                                 .storage()
                                 .ref()
@@ -275,58 +175,40 @@ export default class CollectionScreen extends React.Component {
                                     '/' +
                                     compID +
                                     ':' +
-                                    new Date().getTime()
+                                    new Date().getTime() // create the name in the form compID:CurrentDateAndTime
                                 );
+                            // Upload
                             ref.put(blob).then(() => {
+                                // Upon upload...
                                 if (Platform.OS === 'ios' || Platform.OS === 'android') {
+                                    // Alert the user of success
                                     Alert.alert(
                                         'Success!',
                                         'Uploaded image for ' + this.state.selectedSite
                                     );
                                 } else {
+                                    // Display success
                                     this.setState({
                                         errorMsg: 'Success!',
                                     });
                                 }
                                 this.setState({
                                     success: true,
+                                    uploading: false
                                 });
+                                // Prevent spam by waiting a certain amount of time before allowing for uploads again
                                 setTimeout(() => {
                                     this.setState({
                                         success: false,
                                         errorMsg: '',
+                                        uploading: false
                                     });
                                 }, 1000 * 5);
+                                // Reset screen to allow for collection (but not uploads, immediately)
                                 this.setState({
                                     file: defaultImageUri,
                                 });
                             })
-                            /*
-                            if (Platform.OS === 'ios' || Platform.OS === 'android') {
-                                Alert.alert(
-                                    'Success!',
-                                    'Uploaded image for ' + this.state.selectedSite
-                                );
-                            } else {
-                                this.setState({
-                                    errorMsg: 'Success!',
-                                });
-                            }
-                            this.setState({
-                                success: true,
-                            });
-                            setTimeout(() => {
-                                this.setState({
-                                    success: false,
-                                    errorMsg: '',
-                                });
-                            }, 1000 * 5);
-                            // TODO: Notify user of success in another way?
-                            this.setState({
-                                file: defaultImageUri,
-                            });
-                             */
-                            // this.forceUpdate()
                         });
                     });
                     this.setState({
@@ -344,6 +226,7 @@ export default class CollectionScreen extends React.Component {
             }
         }
     };
+
     render() {
         return (
             <Provider>
@@ -379,6 +262,7 @@ export default class CollectionScreen extends React.Component {
                                 onChoose={this.updateSiteName}
                                 visible={this.state.siteGetterVisible}
                             />
+                            <Text style={styles.uploadingIndicator}>{this.state.uploading ? "Uploading..." : ""}</Text>
                             <Text style={styles.siteSelectionIndicator}>{this.state.selectedSite === null ? "No Site Selected" : this.state.selectedSite}</Text>
                             <AwesomeButton
                                 onPress={this.showSiteGetter}
@@ -408,25 +292,6 @@ export default class CollectionScreen extends React.Component {
         );
     }
 }
-/*
-<SitePicker
-    onChangeText={this.updateSiteName}
-    selectedSite={this.state.selectedSite}
-    parent={this}
-/>
- */
-// <TextInput style={styles.textInput} autoCompleteType={'name'} defaultValue={""} onChangeText={this.updateName} value={this.state.name} label={"Name"}/>
-/* <Text
-      style={{
-        ...styles.errorMsg,
-        color: (this.state.success && 'green') || 'red',
-      }}>
-      {(!this.state.success &&
-        this.state.errorMsg &&
-        'Error: ' + this.state.errorMsg) ||
-        this.state.errorMsg}
-    </Text>
-    */
 
 const styles = StyleSheet.create({
     container: {
@@ -531,4 +396,50 @@ const styles = StyleSheet.create({
         color: '#ff0000',
         textAlign: 'center'
     },
+    uploadingIndicator: {
+        position: 'absolute',
+        bottom: 140,
+        width: '100%',
+        fontSize: 20,
+        color: '#ff0000',
+        textAlign: 'center'
+    }
 });
+
+/*
+Not currently in use:
+
+class SelectFile extends React.Component {
+    constructor(props) {
+        super(props);
+        this.getPermissionsAsync();
+    }
+    onButtonPress = async () => {
+        ImagePicker.launchImageLibraryAsync({
+            mediaTypes: 'Images',
+            allowsEditing: false,
+        }).then(result => {
+            if (!result.cancelled) {
+                this.props.parent.setState({
+                    file: result.uri,
+                });
+                this.props.parent.forceUpdate();
+            }
+        });
+    };
+    getPermissionsAsync = async () => {
+        if (Constants.platform.ios) {
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+            }
+        }
+    };
+    render() {
+        return (
+            <Button onPress={this.onButtonPress} style={styles.captureButton}>
+                Select Image
+            </Button>
+        );
+    }
+}
+ */
