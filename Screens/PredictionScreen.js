@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import {
     StyleSheet,
     Text,
@@ -7,114 +7,84 @@ import {
     StatusBar,
     Image,
     TouchableOpacity,
-    Dimensions,
-    ImageBackground
+    Dimensions
 } from 'react-native'
-import AwesomeButton from "react-native-really-awesome-button";
-import Constants from "expo-constants";
-import * as ImagePicker from "expo-image-picker";
-import * as Permissions from "expo-permissions";
-
-import * as tf from '@tensorflow/tfjs';
-import {fetch} from "@tensorflow/tfjs-react-native";
+import * as tf from '@tensorflow/tfjs'
+import { fetch, asyncStorageIO } from '@tensorflow/tfjs-react-native'
+import {AsyncStorage} from "react-native"
 import * as mobilenet from '@tensorflow-models/mobilenet'
-import * as FileSystem from "expo-file-system";
-// import * as tfn from "@tensorflow/tfjs-node"
-// const imageGet = require('get-image-data');
-
 import * as jpeg from 'jpeg-js'
+import * as ImagePicker from 'expo-image-picker'
+import Constants from 'expo-constants'
+import * as Permissions from 'expo-permissions'
+import AwesomeButton from "react-native-really-awesome-button";
+const { height, width } = Dimensions.get('window');
 
-const {length, width} = Dimensions.get("window")
+// Link to the model
+let ML_Model_Link = 'https://raw.githubusercontent.com/sg2nq/TFJS_model/master/model.json'
 
-let defaultImageUri = '../assets/RotundaBackground.png';
-let ML_Model_Link = 'https://raw.githubusercontent.com/sg2nq/TFJS_model/master/model.json' //'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json'//'./tfjs/model.json' //'https://raw.githubusercontent.com/sg2nq/TFJS_model/master/model.json' //'./tfjs/model.json'
+// Model-Friendly class names; edit these depending on your sites and how you trained your model to distinguish between classes
+let class_names = ['AcademicalVillage', 'AldermanLibrary', 'AlumniHall', 'AquaticFitnessCenter',
+    'BravoHall', 'BrooksHall', 'ClarkHall', 'MadisonHall', 'MinorHall', 'NewCabellHall',
+    'NewcombHall', 'OldCabellHall', 'OlssonHall', 'RiceHall', 'Rotunda', 'ScottStadium',
+    'ThorntonHall', 'UniversityChapel']
 
-export default class PredictionScreen extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            imageFile: defaultImageUri,
-            predictionText: "",
-            loadingPrediction: false,
-            tfStatus: "Loading",
-            modelStatus: "Waiting for TensorFlow"
-        }
-        this.getPermissionsAsync();
-        this.loadTensorFlowModel()
+const predictionsLimit = 3; // The number of predicted classes to display per prediction (in order of descending confidence)
+
+/**
+ * The main component used by the Prediction screen
+ */
+export default class PredictionScreen extends React.Component {
+    state = {
+        isTfReady: false,
+        isModelReady: false,
+        predictions: null,
+        image: null
     }
 
-    loadTensorFlowModel = () => {
-        tf.ready().then(() => {
-            console.log("TensorFlow ready")
+    /**
+     * Upon screen mount, prepare for predicting
+     */
+    async componentDidMount(){
+        await tf.ready() // wait for the TensorFlow module to be ready to load a model
+        this.setState({
+            isTfReady: true
+        })
+
+        // Load the ML model as a layers model
+        tf.loadLayersModel(ML_Model_Link).then((model) => {
+            // Upon successful load, indicate readiness
+            this.model = model
+            console.log("Model has been loaded")
             this.setState({
-                tfStatus: "Loaded ✅",
-                modelStatus: "Loading"
+                isModelReady: true
             })
-            /*
-            const loader = {
-                load: async () => {
-                    return {
-                        modelTopology: topology,
-                        weightSpecs: specs
-                        weightData: data,
-                    };
-                }
-            }
-
-            const model = await tf.loadLayersModel(loader)
+            /* // AsyncStorage is null
+            model.save(asyncStorageIO('landmark-model')).then((saveResults) => {
+                console.log(saveResults)
+            })
              */
-
-            // const handler = tfn.io.fileSystem(ML_Model); // set to ML_Model if using a valid online json
-            tf.loadLayersModel(ML_Model_Link).then((model) => {
-                this.model = model
-                console.log("Model has been loaded")
-                this.setState({
-                    modelStatus: "Loaded ✅"
-                })
-            }).catch((err) => {console.log("Error loading model: " + err)})
-            /*
-            tf.loadModel(ML_Model).then((model) => {
-                this.model = model
-                console.log("Success loading model")
-            }).catch(console.log)
-            tf.models.modelFromJSON(ML_Model).then((model) => {
-                this.model = model
-                console.log("Success loading model")
-            }).catch(console.log)
-             */
-        }).catch((err) => {console.log("Error loading TensorFlow: " + err)})
+        }).catch((err) => {console.log("Error loading model: " + err)})
+        this.getPermissionAsync() // ask user for permission to access the camera and image library
     }
 
-    takePicture = async () => {
-        ImagePicker.launchCameraAsync({
-            mediaTypes: 'Images',
-            allowsEditing: false,
-        }).then(result => {
-            if (!result.cancelled) {
-                this.setState({
-                    imageFile: result.uri,
-                    imageData: result,
-                    imageSource: {
-                        uri: result.uri
-                    }
-                });
-            }
-        });
-    };
-
-    getPermissionsAsync = async () => {
+    /**
+     * Ask the user for permission to access the camera and image library
+     */
+    getPermissionAsync = async () => {
         if (Constants.platform.ios) {
-            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL)
             if (status !== 'granted') {
-
-            }
-            const cameraStatus = await Permissions.askAsync(Permissions.CAMERA).status;
-            if (cameraStatus !== 'granted') {
-
+                alert('Sorry, we need camera roll permissions to make this work!')
             }
         }
-    };
+    }
 
+    /**
+     * Used to convert an image into a tensor, which can be used by a TensorFlow model
+     * @param rawImageData - the arrayBuffer of the response received when fetching the imageAssetPath.uri as binary
+     * @returns {Tensor3D} - the resulting Tensor object
+     */
     imageToTensor(rawImageData) {
         const TO_UINT8ARRAY = true
         const { width, height, data } = jpeg.decode(rawImageData, TO_UINT8ARRAY)
@@ -128,168 +98,184 @@ export default class PredictionScreen extends Component {
 
             offset += 4
         }
-
         return tf.tensor3d(buffer, [height, width, 3])
     }
 
-    preprocessTensor(tensor) {
-
-        // resize the input image to mobilenet's target size of (224, 224)
-
-        tensor
-            .resizeNearestNeighbor([224, 224])
-            .toFloat();
-
-        /*
-        let offset = tf.scalar(127.5);
-            return tensor.sub(offset)
-                .div(offset)
-                .expandDims();
-         */
-
-        return tensor.expandDims();
-    }
-
-    predict = async () => {
-        // check to ensure provided file is valid
-        if (this.state.imageFile === defaultImageUri) {
-            this.setState({
-                predictionText: "Error: no file provided"
+    /**
+     * Used to convert the prediction Tensor into a readable array of results
+     * @param tensor - the prediction results as a tensor
+     * @returns {Promise<[]>} - an array of strings that describe the class names and confidence of the top predictionsLimit predictions
+     */
+    tensorResponseToString = async (tensor) => {
+        let data = await tensor.data()
+        let results = []
+        for (var i = 0; i < data.length; i++) {
+            results.push({
+                className: class_names[i],
+                confidence: data[i]
             })
-            return
         }
-        // indicate loading
-        this.setState({
-            predictionText: "Predicting...",
-            loadingPrediction: true
+        results.sort((a,b) => {
+            return b.confidence - a.confidence
         })
-        // get prediction
-        const imageAssetPath = Image.resolveAssetSource(this.state.imageSource)
-        const response = await fetch(imageAssetPath.uri, {}, { isBinary: true })
-        const rawImageData = await response.arrayBuffer()
-        const imageTensor = this.imageToTensor(rawImageData)
-        let imageTensor2 = imageTensor.expandDims(0)
-        console.log(imageTensor2)
-        console.log("Predicting...")
-        const predictions = await this.model.predict(imageTensor2)
-        console.log("Done predicting")
-        console.log(predictions.data())
-        predictions.print()
-        this.setState({ predictions })
-                /*
-                try {
-
-                        var result = "Error"
-                        try {
-                            console.log("Got raw image data")
-                            let imageTensor = this.imageToTensor(rawImageData) // [4023, 3024, 3];  expected input_1 to have 4 dimension(s), but got array with shape [4032,3024,3]
-                            console.log(imageTensor)
-                            // console.log("Got image tensor")
-                            //let imageTensor2 = imageTensor.expandDims(0)
-                            // console.log(imageTensor2)
-                            setTimeout(() => {
-                                //let imageTensor2 = imageTensor
-                                console.log("expanded image tensor")
-                                //console.log(imageTensor2)
-                                //let imageTensor2 = this.preprocessTensor(imageTensor)
-                                // console.log("preprocessed image tensor")
-                                // result = this.model.predict(imageTensor2) // CAUSES CRASH
-                                this.setState({
-                                    predictionText: "Prediction: " + result,
-                                    loadingPrediction: false
-                                })
-                                console.log("Prediction complete: " + result)
-                                resolve(result)
-                            }, 2000)
-
-                        } catch(error) {
-                            result = error
-                            this.setState({
-                                predictionText: "Prediction: " + result,
-                                loadingPrediction: false
-                            })
-                            console.log(error)
-                            // reject(error)
-                        }
-                    }).catch((err) => {
-                        console.log("Error producing arrayBuffer: ", err)
-                    })
-                })
-                /*
-                fetch(this.state.imageFile, {}, {isBinary: true}).then(response => {
-                    response.arrayBuffer().then((rawImageData) => {
-                        const imageTensor = decodeJpeg(rawImageData);
-                        let image = this.preprocessImage(imageTensor)
-                        let result = this.model.predict(image)
-                        this.setState({
-                            predictionText: "Prediction: " + result,
-                            loadingPrediction: false
-                        })
-                        console.log("Prediction complete: " + result)
-                        resolve(result)
-                    })
-                })
-
-
-                //const image = require(this.state.imageFile);
-                //const imageAssetPath = Image.resolveAssetSource(image);
-
-            } catch (e) {
-                console.log("Error predicting: ", e)
-            }
-            */
+        return results
     }
 
+    /**
+     * Uses the loaded model to classify an image as one of multiple possible landmarks
+     * @returns {Promise<void>}
+     */
     classifyImage = async () => {
+        console.log("classifying image")
         try {
+            this.setState({
+                predictions: null
+            })
             const imageAssetPath = Image.resolveAssetSource(this.state.image)
-            const response = await fetch2(imageAssetPath.uri, {}, { isBinary: true })
+            console.log("got image asset path")
+            const response = await fetch(imageAssetPath.uri, {}, { isBinary: true })
+            console.log("got binary response")
             const rawImageData = await response.arrayBuffer()
+            console.log("converted to array buffer")
             const imageTensor = this.imageToTensor(rawImageData)
-            const predictions = await this.model.classify(imageTensor)
-            this.setState({ predictions })
-            console.log(predictions)
+            console.log("converted to tensor")
+            let imageTensor2 = imageTensor.expandDims(0)
+            console.log("expandedDims")
+            //console.log(imageTensor2)
+            console.log("Predicting...")
+            const predictions = await this.model.predict(imageTensor2, {batchSize: 4, verbose: true}) // causes for subsequent camera uses to cause crash
+            console.log("Done predicting")
+            let results = await this.tensorResponseToString(predictions)
+            let shortenedResults = [];
+            for (var i = 0; i < predictionsLimit; i++) {
+                results[i].rank = i + 1
+                shortenedResults[i] = results[i]
+            }
+            this.setState({ predictions: shortenedResults })
         } catch (error) {
             console.log(error)
         }
     }
 
+    /**
+     * Ask a user for an image from their image gallery
+     * @returns {Promise<void>}
+     */
+    selectImage = async () => {
+        try {
+            // await a response
+            let response = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3]
+            })
+
+            // upon successful image receipt, classify the image
+            if (!response.cancelled) {
+                const source = { uri: response.uri }
+                this.setState({ image: source })
+                this.classifyImage()
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    /**
+     * Allow a user to take a picture using their camera
+     * @returns {Promise<void>}
+     */
+    takePicture = async() => {
+        try {
+            // await a response
+            let response = await ImagePicker.launchCameraAsync({
+                mediaTypes: "Images",
+                allowsEditing: true, // necessary
+                aspect: [4, 3]
+            })
+            // upon successful image receipt, classify the image
+            if (!response.cancelled) {
+                const source = {uri: response.uri}
+                this.setState({
+                    image: source
+                });
+                this.classifyImage()
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    /**
+     * Renders a specific landmark prediction result from all of the landmarks predicted by the model
+     * @param prediction
+     * @returns {*}
+     */
+    renderPrediction = prediction => {
+        //console.log(prediction)
+        let displayConfidence = Math.round((prediction.confidence * 100) * 100)/100
+        return (
+            <Text key={prediction.className} style={styles.text}>
+                #{prediction.rank}: {prediction.className} - {displayConfidence}%
+            </Text>
+        )
+    }
+
     render() {
-        return(
-            <ImageBackground
-                style={styles.imageBackground}
-                source={this.state.imageFile === defaultImageUri ? require(defaultImageUri) : { uri: this.state.imageFile }}
-            >
-                <View
-                    style={styles.container}
-                >
-                    <View style={styles.loadingStatuses}>
-                        <Text style={styles.tfLoadingStatus}>TensorFlow: {this.state.tfStatus}</Text>
-                        <Text style={styles.modelLoadingStatus}>ML Model: {this.state.modelStatus}</Text>
+        const { isTfReady, isModelReady, predictions, image } = this.state
+
+        return (
+            <View style={styles.container}>
+                <StatusBar barStyle='light-content' />
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.text}>
+                        TFJS ready? {isTfReady ? <Text>✅</Text> : ''}
+                    </Text>
+
+                    <View style={styles.loadingModelContainer}>
+                        <Text style={styles.text}>Model ready? </Text>
+                        {isModelReady ? (
+                            <Text style={styles.text}>✅</Text>
+                        ) : (
+                            <ActivityIndicator size='small' />
+                        )}
                     </View>
-                    <Text style={styles.predictionText}>{this.state.predictionText}</Text>
-                    <AwesomeButton
-                        onPress={this.takePicture}
-                        width={2.25 * width / 5}
-                        height={100}
-                        style={styles.captureButton}
-                        backgroundColor={'#de0000'}
-                        borderRadius={20}
-                        textSize={36}
-                        raiseLevel={6}
-                    >Capture</AwesomeButton>
-                    <AwesomeButton
-                        onPress={this.predict}
-                        width={2.25 * width / 5}
-                        height={100}
-                        style={styles.predictButton}
-                        backgroundColor={'#de0000'}
-                        borderRadius={20}
-                        textSize={36}
-                        raiseLevel={6}
-                    >Predict</AwesomeButton>
                 </View>
-            </ImageBackground>
+                <TouchableOpacity
+                    style={styles.imageWrapper}
+                    onPress={isModelReady ? this.selectImage : undefined}>
+                    {image && <Image source={image} style={styles.imageContainer} />}
+
+                    {isModelReady && !image && (
+                        <Text style={styles.transparentText}>Tap to choose image</Text>
+                    )}
+                </TouchableOpacity>
+                <View style={styles.predictionWrapper}>
+                    {isModelReady && image && (
+                        <Text style={styles.text}>
+                            Predictions: {predictions ? '' : 'Predicting...'}
+                        </Text>
+                    )}
+
+                    {isModelReady &&
+                    predictions &&
+                    predictions.map(p => this.renderPrediction(p))}
+
+                </View>
+                <AwesomeButton
+                    onPress={isModelReady ? this.takePicture : undefined}
+                    width={2 * width / 5}
+                    height={100}
+                    style={styles.captureButton}
+                    backgroundColor={'#36de00'}
+                    borderRadius={20}
+                    textSize={24}
+                    raiseLevel={6}
+                >Take Picture</AwesomeButton>
+                <View style={styles.footer}>
+
+                </View>
+            </View>
         )
     }
 }
@@ -297,56 +283,63 @@ export default class PredictionScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#171f24',
+        alignItems: 'center'
+    },
+    loadingContainer: {
+        marginTop: 80,
+        justifyContent: 'center'
+    },
+    text: {
+        color: '#ffffff',
+        fontSize: 16
+    },
+    loadingModelContainer: {
+        flexDirection: 'row',
+        marginTop: 10
+    },
+    imageWrapper: {
+        width: 280,
+        height: 280,
+        padding: 10,
+        borderColor: '#cf667f',
+        borderWidth: 5,
+        borderStyle: 'dashed',
+        marginTop: 40,
+        marginBottom: 10,
+        position: 'relative',
         justifyContent: 'center',
-        paddingTop: Constants.statusBarHeight,
-        // backgroundColor: '#ecf0f1',
-        padding: 8,
+        alignItems: 'center'
     },
-    imageBackground: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingTop: Constants.statusBarHeight,
-        backgroundColor: '#ecf0f1',
-        padding: 8,
-    },
-    captureButton: {
-        alignSelf: 'center',
+    imageContainer: {
+        width: 250,
+        height: 250,
         position: 'absolute',
-        left: 0,
-        bottom: 0,
+        top: 10,
+        left: 10,
+        bottom: 10,
+        right: 10
     },
-    predictButton: {
-        alignSelf: 'center',
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-    },
-    predictionText: {
-        position: 'absolute',
-        bottom: 100,
+    predictionWrapper: {
+        height: 100,
         width: '100%',
+        flexDirection: 'column',
+        alignItems: 'center'
+    },
+    transparentText: {
+        color: '#ffffff',
+        opacity: 0.7
+    },
+    footer: {
+        marginTop: 40
+    },
+    poweredBy: {
         fontSize: 20,
-        color: '#ff0000',
-        textAlign: 'center'
+        color: '#e69e34',
+        marginBottom: 6
     },
-    loadingStatuses: {
-        position: 'absolute',
-        width: '100%',
-        height: '10%',
-        top: '10%'
-    },
-    tfLoadingStatus: {
-        flex: 1,
-        width: '100%',
-        fontSize: 20,
-        color: '#ff0000',
-        textAlign: 'center'
-    },
-    modelLoadingStatus: {
-        flex: 1,
-        width: '100%',
-        fontSize: 20,
-        color: '#ff0000',
-        textAlign: 'center'
+    tfLogo: {
+        width: 125,
+        height: 70
     }
 })

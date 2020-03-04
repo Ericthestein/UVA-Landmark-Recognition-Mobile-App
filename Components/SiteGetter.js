@@ -6,7 +6,7 @@ import {Dropdown} from "react-native-material-dropdown";
 
 import siteNames from "../SiteNames";
 
-// Convert into React Native Paper Dropdown data
+// Convert into siteNames into the proper format for React Native Paper Dropdown data
 var siteNamesData = [];
 siteNames.map(val => {
     let newObject = {
@@ -16,6 +16,9 @@ siteNames.map(val => {
     siteNamesData.push(newObject);
 });
 
+/**
+ * PickerItem - renders site names if this project is run on the web
+ */
 class PickerItem extends React.Component {
     constructor(props) {
         super(props);
@@ -27,6 +30,9 @@ class PickerItem extends React.Component {
     }
 }
 
+/**
+ * SiteGetter - this class is used to render an overlay that gets a site as input from the user
+ */
 export default class SiteGetter extends Component {
     constructor(props) {
         super(props)

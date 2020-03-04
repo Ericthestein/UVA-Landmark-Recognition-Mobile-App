@@ -1,4 +1,5 @@
 // Made by Eric Stein
+
 import * as React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import IconFA5 from 'react-native-vector-icons/FontAwesome5'
@@ -13,26 +14,18 @@ const { height, width } = Dimensions.get('window');
 import * as firebase from 'firebase';
 import CollectionScreen from "./Screens/CollectionScreen";
 import PredictionScreen from "./Screens/PredictionScreen";
-import PredictionScreenTemp from "./Screens/PredictionScreenTemp";
 import firebaseConfig from "./FirebaseConfig";
 
-//import {FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_DATABASEURL, FIREBASE_STORAGEBUCKET} from 'react-native-dotenv'
-
 // Initialize Firebase (if not yet initialized)
-/*
-const firebaseConfig = {
-  apiKey: FIREBASE_APIKEY,
-  authDomain: FIREBASE_AUTHDOMAIN,
-  databaseURL: FIREBASE_DATABASEURL,
-  storageBucket: FIREBASE_STORAGEBUCKET,
-};
- */
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const MainNavigator = createMaterialBottomTabNavigator({ // createBottomTabNavigator
+// Create a navigation tab at the bottom of the screen
+
+const MainNavigator = createMaterialBottomTabNavigator({
+  // Add the CollectionScreen as an option
   CollectionScreen: {
     screen: CollectionScreen,
     navigationOptions: ({navigation}) => {
@@ -44,18 +37,8 @@ const MainNavigator = createMaterialBottomTabNavigator({ // createBottomTabNavig
       })
     }
   },
-  /*
-  PredictionScreen: {
+  PredictionScreen: { // Add the PredictionScreen as an option
     screen: PredictionScreen,
-    navigationOptions: () => ({
-      title: "Predict",
-      tabBarLabel: 'Predict',
-      tabBarIcon: <Icon name={"list"} size={20} color={"white"} />,
-    })
-  },
-   */
-  PredictionScreenTemp: {
-    screen: PredictionScreenTemp,
     navigationOptions: () => ({
       title: "Predict",
       tabBarLabel: 'Predict',
@@ -68,19 +51,6 @@ const MainNavigator = createMaterialBottomTabNavigator({ // createBottomTabNavig
     backgroundColor: '#e35e13'
   }
 })
-
-/*
-transition: (
-      <Transition.Together>
-        <Transition.Out
-            type="slide-bottom"
-            durationMs={400}
-            interpolation="easeIn"
-        />
-        <Transition.In type="fade" durationMs={500} />
-      </Transition.Together>
-  ),
- */
 
 const App = createAppContainer(MainNavigator)
 export default App
