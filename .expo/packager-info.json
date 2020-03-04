@@ -1,10 +1,10 @@
 {
   "devToolsPort": 19002,
   "expoServerPort": 19000,
-  "packagerPort": 19004,
-  "packagerPid": 35809,
+  "packagerPort": 19001,
+  "packagerPid": 1781,
   "expoServerNgrokUrl": "https://xm-7qi.ericthestein.uva-landmark.exp.direct",
   "packagerNgrokUrl": "https://packager.xm-7qi.ericthestein.uva-landmark.exp.direct",
-  "ngrokPid": 35821,
+  "ngrokPid": 1797,
   "webpackServerPort": null
 }

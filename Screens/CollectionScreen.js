@@ -22,6 +22,8 @@ import * as firebase from 'firebase';
 import * as Permissions from 'expo-permissions';
 import AwesomeButton from "react-native-really-awesome-button"
 
+import Leaderboard from "../Components/Leaderboard";
+
 import SiteGetter from "../Components/SiteGetter";
 
 let defaultImageUri = '../assets/RotundaBackground.png'; // the default image to display as the background of this screen (when the user is not uploading an image)
@@ -95,8 +97,8 @@ class UploadButton extends React.Component {
  * CollectionScreen - The main component for the Collection screen
  */
 export default class CollectionScreen extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             selectedSite: null,
             name: '',
@@ -105,8 +107,19 @@ export default class CollectionScreen extends React.Component {
             computingID: '',
             success: false,
             siteGetterVisible: false,
-            uploading: false
+            uploading: false,
+            showingLeaderboard: false
         };
+        this.leaderboard = null
+    }
+
+    /**
+     * Toggles whether the leaderboard overlay should be visible
+     */
+    toggleLeaderboard = () => {
+        this.setState({
+            showingLeaderboard: !this.state.showingLeaderboard
+        })
     }
 
     /**
@@ -146,6 +159,22 @@ export default class CollectionScreen extends React.Component {
         this.setState({
             file: defaultImageUri,
         });
+    }
+
+    /**
+     * Awards the current computing ID points
+     */
+    incrementLeaderboardPoints = () => {
+        if (this.state.computingID === '') {
+            return
+        }
+        let ref = firebase.database().ref().child("leaderboard/" + this.state.computingID)
+        ref.once("value").then((snapshot) => {
+            let pointsEarned = 1 // TODO: change based on site and amount of photos already in site
+            // TODO: show visual of points earned
+            ref.set(snapshot.val() + pointsEarned)
+            this.leaderboard && this.leaderboard.getEntries()
+        })
     }
 
     /**
@@ -196,6 +225,7 @@ export default class CollectionScreen extends React.Component {
                                     success: true,
                                     uploading: false
                                 });
+                                this.incrementLeaderboardPoints()
                                 // Prevent spam by waiting a certain amount of time before allowing for uploads again
                                 setTimeout(() => {
                                     this.setState({
@@ -233,6 +263,16 @@ export default class CollectionScreen extends React.Component {
                 <ImageBackground
                     style={styles.imageBackground}
                     source={this.state.file === defaultImageUri ? require(defaultImageUri) : { uri: this.state.file }}>
+                    <AwesomeButton
+                        onPress={this.toggleLeaderboard}
+                        width={2 * width / 5}
+                        height={50}
+                        style={styles.leaderboardButton}
+                        backgroundColor={'#076c26'}
+                        borderRadius={20}
+                        textSize={14}
+                        raiseLevel={6}
+                    >Leaderboard</AwesomeButton>
                     <TextInput
                         style={styles.textInput}
                         //autoCompleteType={''}
@@ -249,6 +289,12 @@ export default class CollectionScreen extends React.Component {
                             <TakePicture parent={this} />
                         </View>
                     )}
+                    <Leaderboard
+                        visible={this.state.showingLeaderboard}
+                        computingID={this.state.computingID}
+                        onDismiss={this.toggleLeaderboard}
+                        ref={(ref) => this.leaderboard = ref}
+                    />
                     {this.state.file !== defaultImageUri && ( // Picture taken
                         <View
                             style={{
@@ -403,6 +449,11 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: '#ff0000',
         textAlign: 'center'
+    },
+    leaderboardButton: {
+        position: 'absolute',
+        left: 10,
+        top: 0 + Constants.statusBarHeight
     }
 });
 
