@@ -14,6 +14,7 @@ const { height, width } = Dimensions.get('window');
 import * as firebase from 'firebase';
 import CollectionScreen from "./Screens/CollectionScreen";
 import PredictionScreen from "./Screens/PredictionScreen";
+import PredictionScreenUsingServer from "./Screens/PredictionScreenUsingServer"
 import firebaseConfig from "./FirebaseConfig";
 
 // Initialize Firebase (if not yet initialized)
@@ -38,7 +39,7 @@ const MainNavigator = createMaterialBottomTabNavigator({
     }
   },
   PredictionScreen: { // Add the PredictionScreen as an option
-    screen: PredictionScreen,
+    screen: PredictionScreenUsingServer,
     navigationOptions: () => ({
       title: "Predict",
       tabBarLabel: 'Predict',

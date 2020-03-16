@@ -3,18 +3,17 @@ import ReactNative from 'react-native';
 
 import createNativeWrapper from './createNativeWrapper';
 
-const MEMOIZED = new WeakMap();
+const MEMOIZED = {};
 
 function memoizeWrap(Component, config) {
-  if (Component == null) {
-    return null;
+  const memoized = MEMOIZED[Component.displayName];
+  if (memoized) {
+    return memoized;
   }
-  let memoized = MEMOIZED.get(Component);
-  if (!memoized) {
-    memoized = createNativeWrapper(Component, config);
-    MEMOIZED.set(Component, memoized);
-  }
-  return memoized;
+  return (MEMOIZED[Component.displayName] = createNativeWrapper(
+    Component,
+    config
+  ));
 }
 
 module.exports = {
@@ -22,7 +21,6 @@ module.exports = {
   get ScrollView() {
     return memoizeWrap(ReactNative.ScrollView, {
       disallowInterruption: true,
-      shouldCancelWhenOutside: false,
     });
   },
   get Switch() {
@@ -34,6 +32,9 @@ module.exports = {
   },
   get TextInput() {
     return memoizeWrap(ReactNative.TextInput);
+  },
+  get ToolbarAndroid() {
+    return memoizeWrap(ReactNative.ToolbarAndroid);
   },
   get DrawerLayoutAndroid() {
     const DrawerLayoutAndroid = memoizeWrap(ReactNative.DrawerLayoutAndroid, {

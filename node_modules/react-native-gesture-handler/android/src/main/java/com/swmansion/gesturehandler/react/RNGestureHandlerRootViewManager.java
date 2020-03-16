@@ -7,7 +7,7 @@ import com.facebook.react.uimanager.ViewGroupManager;
 
 import java.util.Map;
 
-import androidx.annotation.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * React native's view manager used for creating instances of {@link }RNGestureHandlerRootView}. It

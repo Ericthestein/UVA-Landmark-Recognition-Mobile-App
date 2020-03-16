@@ -1,9 +1,7 @@
-import React from 'react';
 import GenericTouchable from './GenericTouchable';
+import React from 'react';
 
-const TouchableWithoutFeedback = React.forwardRef((props, ref) => (
-  <GenericTouchable ref={ref} {...props} />
-));
+const TouchableWithoutFeedback = props => <GenericTouchable {...props} />;
 
 TouchableWithoutFeedback.defaultProps = GenericTouchable.defaultProps;
 

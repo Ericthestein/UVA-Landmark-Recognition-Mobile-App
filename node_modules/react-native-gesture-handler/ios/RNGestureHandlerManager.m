@@ -5,7 +5,6 @@
 #import <React/RCTComponent.h>
 #import <React/RCTRootView.h>
 #import <React/RCTTouchHandler.h>
-#import <React/RCTRootContentView.h>
 
 #import "RNGestureHandlerState.h"
 #import "RNGestureHandler.h"
@@ -160,7 +159,7 @@
 
     UIView *parent = rootContentView.superview;
     if ([parent isKindOfClass:[RCTRootView class]]) {
-        [((RCTRootContentView*)rootContentView).touchHandler cancel];
+        [(RCTRootView*)parent cancelTouches];
     }
 }
 
