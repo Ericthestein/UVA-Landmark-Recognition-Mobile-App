@@ -40,6 +40,7 @@ export default class Leaderboard extends Component {
     }
 
     componentDidMount() {
+        console.log("mounted")
         this.getEntries()
     }
 

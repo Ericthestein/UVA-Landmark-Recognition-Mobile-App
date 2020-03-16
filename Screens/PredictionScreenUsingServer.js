@@ -37,7 +37,8 @@ export default class PredictionScreenUsingServer extends React.Component {
         this.state = {
             predictions: null,
             image: null,
-            imageRef: null
+            imageRef: null,
+            predicting: false
         }
     }
 
@@ -72,12 +73,13 @@ export default class PredictionScreenUsingServer extends React.Component {
                     let ref = firebase
                         .storage()
                         .ref()
-                        .child(new Date().getTime()) // create the name in the form compID:CurrentDateAndTime
+                        .child("temp_prediction_images/" + "test" + ".jpg")
                     this.setState({
                         imageRef: ref
                     })
                     // Upload
                     ref.put(blob).then(() => {// Upon upload...
+                        console.log("Done")
                         resolve()
                     })
                 });
@@ -85,7 +87,7 @@ export default class PredictionScreenUsingServer extends React.Component {
         })
     }
 
-    getImageLink = () => {
+    getImageLink = async () => {
         return this.state.imageRef.getDownloadURL()
     }
 
@@ -93,6 +95,7 @@ export default class PredictionScreenUsingServer extends React.Component {
      * Remove the previously uploaded image
      */
     removeUploadedImage = () => {
+        console.log("Removing")
         return new Promise((resolve, reject) => {
             if (this.state.imageRef === null) reject();
             this.state.imageRef.delete().then(() => {
@@ -100,6 +103,7 @@ export default class PredictionScreenUsingServer extends React.Component {
                     imageRef: null
                 })
                 resolve()
+                console.log("removed")
             }).catch((e) => reject(e))
         })
     }
@@ -109,17 +113,24 @@ export default class PredictionScreenUsingServer extends React.Component {
      * @returns {Promise<void>}
      */
     classifyImage = async() => {
+        this.setState({predicting: true})
         await this.uploadImageTemporarily()
-        let imageLink = this.getImageLink()
+        let imageLink = await this.getImageLink()
         console.log("link", SERVER_LINK + imageLink)
-        let result = await fetch(SERVER_LINK + imageLink)
-        console.log(result)
-        if (result.prediction) {
-            this.setState({
-                prediction: result.prediction
-            })
+        let result = await fetch("http://35.231.33.254/predict?msg=https://news.virginia.edu/sites/default/files/styles/uva_basic_article/public/article_image/16616_photo_1_high_res.jpg?itok=zu3wViiy")//fetch(SERVER_LINK + imageLink)
+        console.log(result.status)
+        if (result.status === 200) {
+            let json = await result.json()
+            if (json.prediction) {
+                console.log(json.prediction)
+                this.setState({
+                    prediction: json.prediction
+                })
+            }
         }
-        await this.removeUploadedImage()
+        console.log("done")
+        this.setState({predicting: false})
+        //await this.removeUploadedImage()
     }
 
     /**
@@ -173,31 +184,29 @@ export default class PredictionScreenUsingServer extends React.Component {
         return (
             <View style={styles.container}>
                 <StatusBar barStyle='light-content' />
+                <Text style={styles.title}>Predict Landmark</Text>
                 <TouchableOpacity
                     style={styles.imageWrapper}
                     onPress={this.selectImage}>
-                    {image && <Image source={image} style={styles.imageContainer} />}
+                    {this.state.image && <Image source={{uri: this.state.image}} style={styles.imageContainer} />}
                     <Text style={styles.transparentText}>Tap to choose image</Text>
                 </TouchableOpacity>
                 <View style={styles.predictionWrapper}>
-                        <Text style={styles.text}>
-                            Prediction: {predictions ? '' : 'Predicting...'}
-                        </Text>
-                        <Text style={styles.text}>{this.state.prediction}</Text>
+                    <Text style={styles.text}>
+                        {this.state.predicting ? 'Predicting...' : ''}
+                    </Text>
+                    <Text style={styles.text}>{this.state.prediction}</Text>
                 </View>
                 <AwesomeButton
                     onPress={this.takePicture}
                     width={2 * width / 5}
                     height={100}
-                    style={styles.captureButton}
+                    style={styles.takePictureButton}
                     backgroundColor={'#36de00'}
                     borderRadius={20}
                     textSize={24}
                     raiseLevel={6}
                 >Take Picture</AwesomeButton>
-                <View style={styles.footer}>
-
-                </View>
             </View>
         )
     }
@@ -215,11 +224,17 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#ffffff',
-        fontSize: 16
+        fontSize: 16,
     },
     loadingModelContainer: {
         flexDirection: 'row',
         marginTop: 10
+    },
+    title: {
+        fontSize: 36,
+        position: 'absolute',
+        top: 70,
+        color: 'white'
     },
     imageWrapper: {
         width: 280,
@@ -228,26 +243,17 @@ const styles = StyleSheet.create({
         borderColor: '#cf667f',
         borderWidth: 5,
         borderStyle: 'dashed',
-        marginTop: 40,
-        marginBottom: 10,
-        position: 'relative',
+        position: 'absolute',
+        bottom: 250,
         justifyContent: 'center',
         alignItems: 'center'
-    },
-    imageContainer: {
-        width: 250,
-        height: 250,
-        position: 'absolute',
-        top: 10,
-        left: 10,
-        bottom: 10,
-        right: 10
     },
     predictionWrapper: {
         height: 100,
         width: '100%',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'space-around',
     },
     transparentText: {
         color: '#ffffff',
@@ -264,5 +270,9 @@ const styles = StyleSheet.create({
     tfLogo: {
         width: 125,
         height: 70
+    },
+    takePictureButton: {
+        position: 'absolute',
+        bottom: 50
     }
 })
