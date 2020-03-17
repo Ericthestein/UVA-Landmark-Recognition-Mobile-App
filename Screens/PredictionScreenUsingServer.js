@@ -38,7 +38,8 @@ export default class PredictionScreenUsingServer extends React.Component {
             predictions: null,
             image: null,
             imageRef: null,
-            predicting: false
+            predicting: false,
+            prediction: ''
         }
     }
 
@@ -116,21 +117,17 @@ export default class PredictionScreenUsingServer extends React.Component {
         this.setState({predicting: true})
         await this.uploadImageTemporarily()
         let imageLink = await this.getImageLink()
-        console.log("link", SERVER_LINK + imageLink)
-        let result = await fetch("http://35.231.33.254/predict?msg=https://news.virginia.edu/sites/default/files/styles/uva_basic_article/public/article_image/16616_photo_1_high_res.jpg?itok=zu3wViiy")//fetch(SERVER_LINK + imageLink)
-        console.log(result.status)
+        let result = await fetch(SERVER_LINK + imageLink)
         if (result.status === 200) {
             let json = await result.json()
             if (json.prediction) {
-                console.log(json.prediction)
                 this.setState({
                     prediction: json.prediction
                 })
             }
         }
-        console.log("done")
         this.setState({predicting: false})
-        //await this.removeUploadedImage()
+        await this.removeUploadedImage()
     }
 
     /**
@@ -193,9 +190,8 @@ export default class PredictionScreenUsingServer extends React.Component {
                 </TouchableOpacity>
                 <View style={styles.predictionWrapper}>
                     <Text style={styles.text}>
-                        {this.state.predicting ? 'Predicting...' : ''}
+                        {this.state.predicting ? 'Predicting...' : this.state.prediction}
                     </Text>
-                    <Text style={styles.text}>{this.state.prediction}</Text>
                 </View>
                 <AwesomeButton
                     onPress={this.takePicture}
@@ -254,6 +250,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-around',
+        position: 'absolute',
+        bottom: 125,
     },
     transparentText: {
         color: '#ffffff',
@@ -273,6 +271,11 @@ const styles = StyleSheet.create({
     },
     takePictureButton: {
         position: 'absolute',
-        bottom: 50
+        bottom: 15
+    },
+    imageContainer: {
+        backgroundColor: 'red',
+        height: '100%',
+        width: '100%'
     }
 })
