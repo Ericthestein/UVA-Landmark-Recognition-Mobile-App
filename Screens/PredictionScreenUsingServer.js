@@ -39,7 +39,8 @@ export default class PredictionScreenUsingServer extends React.Component {
             image: null,
             imageRef: null,
             predicting: false,
-            prediction: ''
+            prediction: '',
+            predictionsToDisplay: []
         }
     }
 
@@ -80,7 +81,6 @@ export default class PredictionScreenUsingServer extends React.Component {
                     })
                     // Upload
                     ref.put(blob).then(() => {// Upon upload...
-                        console.log("Done")
                         resolve()
                     })
                 });
@@ -96,7 +96,6 @@ export default class PredictionScreenUsingServer extends React.Component {
      * Remove the previously uploaded image
      */
     removeUploadedImage = () => {
-        console.log("Removing")
         return new Promise((resolve, reject) => {
             if (this.state.imageRef === null) reject();
             this.state.imageRef.delete().then(() => {
@@ -104,7 +103,6 @@ export default class PredictionScreenUsingServer extends React.Component {
                     imageRef: null
                 })
                 resolve()
-                console.log("removed")
             }).catch((e) => reject(e))
         })
     }
@@ -121,13 +119,40 @@ export default class PredictionScreenUsingServer extends React.Component {
         if (result.status === 200) {
             let json = await result.json()
             if (json.prediction) {
-                this.setState({
-                    prediction: json.prediction
-                })
+                this.preparePredictionDisplay(json.prediction)
             }
         }
         this.setState({predicting: false})
         await this.removeUploadedImage()
+    }
+
+    /**
+     * Prepares this.state.predictionsToDisplay for display
+     */
+    preparePredictionDisplay = (predictions) => {
+        let display = []
+
+        // prepare array
+        let predictionClassnames = Object.keys(predictions)
+        for (var i = 0; i < Math.min(predictionsLimit, predictionClassnames.length); i++) {
+            let className = predictionClassnames[i]
+            let confidence = predictions[className]
+            let displayConfidence = Math.round((confidence * 100) * 100)/100
+
+            display.push({
+                className: className,
+                displayConfidence: displayConfidence
+            })
+        }
+
+        // sort in descending order of confidence
+        display.sort((a,b) => {
+            return b.displayConfidence - a.displayConfidence
+        })
+
+        this.setState({
+            predictionsToDisplay: display
+        })
     }
 
     /**
@@ -189,9 +214,16 @@ export default class PredictionScreenUsingServer extends React.Component {
                     <Text style={styles.transparentText}>Tap to choose image</Text>
                 </TouchableOpacity>
                 <View style={styles.predictionWrapper}>
-                    <Text style={styles.text}>
-                        {this.state.predicting ? 'Predicting...' : this.state.prediction}
+                    <Text style={styles.predictionsTitle}>
+                        {this.state.predicting ? 'Predicting...' : (this.state.predictionsToDisplay !== null ? "Predictions" : "")}
                     </Text>
+                    <View style={styles.predictionsContainer}>
+                        {this.state.predictionsToDisplay.map((prediction, key) => {
+                            return(
+                                <Text key={key} style={styles.predictionText}>#{key + 1}: {prediction.className} - {prediction.displayConfidence}%</Text>
+                            )
+                        })}
+                    </View>
                 </View>
                 <AwesomeButton
                     onPress={this.takePicture}
@@ -218,9 +250,28 @@ const styles = StyleSheet.create({
         marginTop: 80,
         justifyContent: 'center'
     },
-    text: {
+    predictionWrapper: {
+        height: 100,
+        width: '100%',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        position: 'absolute',
+        bottom: 125,
+    },
+    predictionsTitle: {
         color: '#ffffff',
         fontSize: 16,
+        flex: 1,
+    },
+    predictionsContainer: {
+        flex: 2,
+        justifyContent: "space-around"
+    },
+    predictionText: {
+        color: "white",
+        flex: 1,
+        textAlign: 'left'
     },
     loadingModelContainer: {
         flexDirection: 'row',
@@ -243,15 +294,6 @@ const styles = StyleSheet.create({
         bottom: 250,
         justifyContent: 'center',
         alignItems: 'center'
-    },
-    predictionWrapper: {
-        height: 100,
-        width: '100%',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        position: 'absolute',
-        bottom: 125,
     },
     transparentText: {
         color: '#ffffff',
