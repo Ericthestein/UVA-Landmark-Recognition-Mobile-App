@@ -132,9 +132,11 @@ export default class PredictionScreenUsingServer extends React.Component {
     preparePredictionDisplay = (predictions) => {
         let display = []
 
+        let currentSum = 0; // for testing
+
         // prepare array
         let predictionClassnames = Object.keys(predictions)
-        for (var i = 0; i < Math.min(predictionsLimit, predictionClassnames.length); i++) {
+        for (var i = 0; i < predictionClassnames.length; i++) {
             let className = predictionClassnames[i]
             let confidence = predictions[className]
             let displayConfidence = Math.round((confidence * 100) * 100)/100
@@ -143,12 +145,18 @@ export default class PredictionScreenUsingServer extends React.Component {
                 className: className,
                 displayConfidence: displayConfidence
             })
+            currentSum += confidence
         }
+
+        console.log("sum: " + currentSum)
 
         // sort in descending order of confidence
         display.sort((a,b) => {
             return b.displayConfidence - a.displayConfidence
         })
+
+        // truncate to only show predictionsLimit
+        display = display.slice(0, predictionsLimit)
 
         this.setState({
             predictionsToDisplay: display
@@ -203,6 +211,7 @@ export default class PredictionScreenUsingServer extends React.Component {
     }
 
     render() {
+        console.log(this.state.predictionsToDisplay)
         return (
             <View style={styles.container}>
                 <StatusBar barStyle='light-content' />
@@ -215,10 +224,10 @@ export default class PredictionScreenUsingServer extends React.Component {
                 </TouchableOpacity>
                 <View style={styles.predictionWrapper}>
                     <Text style={styles.predictionsTitle}>
-                        {this.state.predicting ? 'Predicting...' : (this.state.predictionsToDisplay !== null ? "Predictions" : "")}
+                        {this.state.predicting ? 'Predicting...' : (this.state.predictionsToDisplay.length > 0 ? "Predictions" : "")}
                     </Text>
                     <View style={styles.predictionsContainer}>
-                        {this.state.predictionsToDisplay.map((prediction, key) => {
+                        {!this.state.predicting && this.state.predictionsToDisplay.map((prediction, key) => {
                             return(
                                 <Text key={key} style={styles.predictionText}>#{key + 1}: {prediction.className} - {prediction.displayConfidence}%</Text>
                             )
