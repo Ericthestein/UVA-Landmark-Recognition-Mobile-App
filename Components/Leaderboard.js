@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-import {View, StyleSheet, Text} from "react-native"
+import {View, StyleSheet, Text, ScrollView} from "react-native"
 import {Dialog, Portal} from "react-native-paper";
 
 import * as firebase from "firebase";
@@ -93,13 +93,16 @@ export default class Leaderboard extends Component {
                     visible={this.props.visible}
                     dismissable={true}
                     onDismiss={this.props.onDismiss}
+                    style={styles.dialog}
                 >
-                    <Text style={styles.title}>Leaderboard</Text>
-                    {this.state.entries.map((data) => {
-                        return(
-                            <LeaderboardEntry data={data} key={data.place} currentUserID={this.props.computingID}/>
-                        )
-                    })}
+                    <ScrollView styles={styles.scrollView}>
+                        <Text style={styles.title}>Leaderboard</Text>
+                        {this.state.entries.map((data) => {
+                            return(
+                                <LeaderboardEntry data={data} key={data.place} currentUserID={this.props.computingID}/>
+                            )
+                        })}
+                    </ScrollView>
                 </Dialog>
             </Portal>
         )
@@ -122,5 +125,11 @@ const styles = StyleSheet.create({
     },
     value: {
 
+    },
+    scrollView: {
+
+    },
+    dialog: {
+        height: '70%'
     }
 })
