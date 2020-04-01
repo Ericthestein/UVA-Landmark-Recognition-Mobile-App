@@ -16,13 +16,31 @@ class LeaderboardEntry extends Component {
     }
 
     render() {
-        console.log(this.props.data)
         let {key, value, place} = this.props.data
         let textColor = key === this.props.currentUserID ? 'red' : 'black'
         return(
             <View style={styles.entry}>
                 <Text style={{...styles.key, color: textColor}}>#{place} {key}:</Text>
                 <Text style={{...styles.value, color: textColor}}>{value}</Text>
+            </View>
+        )
+    }
+}
+
+/**
+ * A row-like view that renders the first row of the table (the column names)
+ */
+class LeaderboardHeading extends Component {
+    constructor(props) {
+        super(props)
+
+    }
+
+    render() {
+        return(
+            <View style={styles.entry}>
+                <Text style={{...styles.key, color: 'blue'}}>{this.props.column1Name}</Text>
+                <Text style={{...styles.value, color: 'blue'}}>{this.props.column2Name}</Text>
             </View>
         )
     }
@@ -95,8 +113,12 @@ export default class Leaderboard extends Component {
                     onDismiss={this.props.onDismiss}
                     style={styles.dialog}
                 >
+                    <Text style={styles.title}>Leaderboard</Text>
+                    <LeaderboardHeading
+                        column1Name={"User"}
+                        column2Name={"Points"}
+                    />
                     <ScrollView styles={styles.scrollView}>
-                        <Text style={styles.title}>Leaderboard</Text>
                         {this.state.entries.map((data) => {
                             return(
                                 <LeaderboardEntry data={data} key={data.place} currentUserID={this.props.computingID}/>

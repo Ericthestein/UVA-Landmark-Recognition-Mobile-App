@@ -40,7 +40,8 @@ export default class PredictionScreenUsingServer extends React.Component {
             imageRef: null,
             predicting: false,
             prediction: '',
-            predictionsToDisplay: []
+            predictionsToDisplay: [],
+            error: ""
         }
     }
 
@@ -75,12 +76,12 @@ export default class PredictionScreenUsingServer extends React.Component {
                     let ref = firebase
                         .storage()
                         .ref()
-                        .child("temp_prediction_images/" + "test" + ".jpg")
+                        .child("temp_prediction_images/" + Date.now() + ".jpg")
                     this.setState({
                         imageRef: ref
                     })
                     // Upload
-                    ref.put(blob).then(() => {// Upon upload...
+                    ref.put(blob).then(() => { // Upon upload...
                         resolve()
                     })
                 });
@@ -121,9 +122,11 @@ export default class PredictionScreenUsingServer extends React.Component {
             if (json.prediction) {
                 this.preparePredictionDisplay(json.prediction)
             }
+        } else {
+            console.warn(result)
         }
         this.setState({predicting: false})
-        await this.removeUploadedImage()
+        this.removeUploadedImage()
     }
 
     /**
@@ -178,11 +181,14 @@ export default class PredictionScreenUsingServer extends React.Component {
 
             // upon successful image receipt, classify the image
             if (!response.cancelled) {
-                this.setState({ image: response.uri })
+                this.setState({ image: response.uri, error: "" })
                 this.classifyImage()
             }
         } catch (error) {
             console.log(error)
+            this.setState({
+                error: error
+            })
         }
     }
 
@@ -210,8 +216,15 @@ export default class PredictionScreenUsingServer extends React.Component {
         }
     }
 
+    /**
+     * Allow a user to use the currently-uploaded image for training by taking it to the Collection screen
+     */
+    useImageForTraining = () => {
+        console.log("clicked")
+        this.props.navigation.navigate("CollectionScreen", {imageUri: this.state.image})
+    }
+
     render() {
-        console.log(this.state.predictionsToDisplay)
         return (
             <View style={styles.container}>
                 <StatusBar barStyle='light-content' />
@@ -244,6 +257,16 @@ export default class PredictionScreenUsingServer extends React.Component {
                     textSize={24}
                     raiseLevel={6}
                 >Take Picture</AwesomeButton>
+                {this.state.predictionsToDisplay.length > 0 && <AwesomeButton
+                    onPress={this.useImageForTraining}
+                    width={4.5 * width / 5}
+                    height={50}
+                    style={styles.wrongButton}
+                    backgroundColor={'#8948de'}
+                    borderRadius={20}
+                    textSize={16}
+                    raiseLevel={6}
+                >Were we wrong? Click here to help train!</AwesomeButton>}
             </View>
         )
     }
@@ -266,7 +289,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-around',
         position: 'absolute',
-        bottom: 125,
+        top: 420,
     },
     predictionsTitle: {
         color: '#ffffff',
@@ -289,7 +312,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 36,
         position: 'absolute',
-        top: 70,
+        top: 60,
         color: 'white'
     },
     imageWrapper: {
@@ -300,7 +323,7 @@ const styles = StyleSheet.create({
         borderWidth: 5,
         borderStyle: 'dashed',
         position: 'absolute',
-        bottom: 250,
+        top: 125,
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -328,5 +351,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         height: '100%',
         width: '100%'
+    },
+    wrongButton: {
+        position: 'absolute',
+        bottom: 140
     }
 })

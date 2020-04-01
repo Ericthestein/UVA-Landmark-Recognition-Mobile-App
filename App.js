@@ -26,26 +26,26 @@ if (!firebase.apps.length) {
 // Create a navigation tab at the bottom of the screen
 
 const MainNavigator = createMaterialBottomTabNavigator({
-  // Add the CollectionScreen as an option
-  CollectionScreen: {
-    screen: CollectionScreen,
-    navigationOptions: ({navigation}) => {
-      return({
-        title: 'Collect',
-        tabBarLabel: 'Collect',
-        tabBarIcon: <Icon name={"map"} size={20} color={"white"}/>,
-        gesturesEnabled: true,
-      })
+    // Add the CollectionScreen as an option
+    PredictionScreen: { // Add the PredictionScreen as an option
+        screen: PredictionScreenUsingServer,
+        navigationOptions: () => ({
+            title: "Predict",
+            tabBarLabel: 'Predict',
+            tabBarIcon: <Icon name={"list"} size={20} color={"white"} />,
+        })
+    },
+    CollectionScreen: {
+        screen: CollectionScreen,
+        navigationOptions: ({navigation}) => {
+          return({
+                title: 'Collect',
+                tabBarLabel: 'Collect',
+                tabBarIcon: <Icon name={"map"} size={20} color={"white"}/>,
+                gesturesEnabled: true,
+          })
+        }
     }
-  },
-  PredictionScreen: { // Add the PredictionScreen as an option
-    screen: PredictionScreenUsingServer,
-    navigationOptions: () => ({
-      title: "Predict",
-      tabBarLabel: 'Predict',
-      tabBarIcon: <Icon name={"list"} size={20} color={"white"} />,
-    })
-  }
 }, {
   labeled: true,
   barStyle: {

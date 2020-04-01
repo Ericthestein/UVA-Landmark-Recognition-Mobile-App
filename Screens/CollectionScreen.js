@@ -113,6 +113,29 @@ export default class CollectionScreen extends React.Component {
         this.leaderboard = null
     }
 
+    componentDidMount() {
+        this._unsubscribe = this.props.navigation.addListener('willFocus', () => {
+            this.checkForImageFromPredictionScreen()
+        });
+    }
+
+    componentWillUnmount() {
+        this._unsubscribe();
+    }
+
+    /**
+     * Checks to see if an image file was provided when transitioning from the Prediction screen to this screen
+     */
+    checkForImageFromPredictionScreen() {
+        let imageUri = this.props.navigation.getParam("imageUri")
+        if (imageUri) {
+            this.props.navigation.setParams({"imageUri": null})
+            this.setState({
+                file: imageUri
+            })
+        }
+    }
+
     /**
      * Toggles whether the leaderboard overlay should be visible
      */
