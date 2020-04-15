@@ -2,8 +2,9 @@
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 8247,
+  "packagerPid": 6163,
   "expoServerNgrokUrl": "https://jn-wn9.ericthestein.uva-landmark.exp.direct",
   "packagerNgrokUrl": "https://packager.jn-wn9.ericthestein.uva-landmark.exp.direct",
-  "ngrokPid": 8260
+  "ngrokPid": 6174,
+  "webpackServerPort": null
 }

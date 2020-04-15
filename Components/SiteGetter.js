@@ -37,7 +37,7 @@ export default class SiteGetter extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            selection: siteNames[0]
+            selection: null
         }
     }
 

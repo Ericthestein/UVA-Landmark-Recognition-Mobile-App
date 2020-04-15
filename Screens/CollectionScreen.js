@@ -196,7 +196,18 @@ export default class CollectionScreen extends React.Component {
             let pointsEarned = 1 // TODO: change based on site and amount of photos already in site
             // TODO: show visual of points earned
             ref.set(snapshot.val() + pointsEarned)
-            this.leaderboard && this.leaderboard.getEntries()
+            this.leaderboard && this.leaderboard.getEntries("leaderboard")
+        })
+    }
+
+    incrementLandmarkAmount = () => {
+        if (this.state.selectedSite === null) {
+            return
+        }
+        let ref = firebase.database().ref().child("siteTotals/" + this.state.selectedSite.toLowerCase())
+        ref.once("value").then((snapshot) => {
+            ref.set(snapshot.val() + 1)
+            this.leaderboard && this.leaderboard.getEntries("siteTotals")
         })
     }
 
@@ -250,6 +261,7 @@ export default class CollectionScreen extends React.Component {
                                     uploading: false
                                 });
                                 this.incrementLeaderboardPoints()
+                                this.incrementLandmarkAmount()
                                 // Prevent spam by waiting a certain amount of time before allowing for uploads again
                                 setTimeout(() => {
                                     this.setState({

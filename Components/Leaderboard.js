@@ -1,8 +1,10 @@
 import React, {Component} from "react"
-import {View, StyleSheet, Text, ScrollView} from "react-native"
-import {Dialog, Portal} from "react-native-paper";
+import {View, StyleSheet, Text, ScrollView, Dimensions} from "react-native"
+import {Dialog, Portal, RadioButton, ToggleButton} from "react-native-paper";
+const { height, width } = Dimensions.get('window');
 
 import * as firebase from "firebase";
+import AwesomeButton from "react-native-really-awesome-button";
 
 /**
  * A row-like view that renders the data of a given entry in the leaderboard
@@ -16,6 +18,7 @@ class LeaderboardEntry extends Component {
     }
 
     render() {
+        if (!this.props.currentUserID) this.props.currentUserID = ""
         let {key, value, place} = this.props.data
         let textColor = key === this.props.currentUserID ? 'red' : 'black'
         return(
@@ -53,13 +56,16 @@ export default class Leaderboard extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            entries: [],
+            userEntries: [],
+            landmarkEntries: [],
+            selectedMode: 'users'
         }
     }
 
     componentDidMount() {
         console.log("mounted")
-        this.getEntries()
+        this.getEntries("leaderboard")
+        this.getEntries("siteTotals")
     }
 
     /**
@@ -76,10 +82,10 @@ export default class Leaderboard extends Component {
      * Pulls leaderboard from Firebase, creates an entries array, sorts the array, and updates the component's state
      * @returns {Promise<void>}
      */
-    getEntries = async () => {
+    getEntries = async (dataLocation) => {
         let newEntries = []
 
-        let leaderboardDataSnapshot = await firebase.database().ref().child("leaderboard").once("value")
+        let leaderboardDataSnapshot = await firebase.database().ref().child(dataLocation).once("value")
         let leaderboardData = leaderboardDataSnapshot.val()
         let keys = Object.keys(leaderboardData)
 
@@ -99,9 +105,16 @@ export default class Leaderboard extends Component {
             object.place = currPlace++
         })
 
-        this.setState({
-            entries: newEntries
-        })
+        if (dataLocation === "leaderboard") {
+            this.setState({
+                userEntries: newEntries
+            })
+        } else {
+            this.setState({
+                landmarkEntries: newEntries
+            })
+        }
+
     }
 
     render() {
@@ -114,14 +127,41 @@ export default class Leaderboard extends Component {
                     style={styles.dialog}
                 >
                     <Text style={styles.title}>Leaderboard</Text>
+
+                    <View style={styles.modesView}>
+                        <AwesomeButton
+                            onPress={() => {this.setState({selectedMode: 'users'})}}
+                            width={2*width/5}
+                            height={25}
+                            backgroundColor={'#94beff'}
+                            borderRadius={20}
+                            textSize={14}
+                            raiseLevel={3}
+                        >Users</AwesomeButton>
+
+                        <AwesomeButton
+                            onPress={() => {this.setState({selectedMode: 'landmarks'})}}
+                            width={2*width/5}
+                            height={25}
+                            backgroundColor={'#76df2d'}
+                            borderRadius={20}
+                            textSize={14}
+                            raiseLevel={3}
+                        >Landmarks</AwesomeButton>
+                    </View>
+
                     <LeaderboardHeading
-                        column1Name={"User"}
-                        column2Name={"Points"}
+                        column1Name={this.state.selectedMode === "users" ? "User" : "Site"}
+                        column2Name={this.state.selectedMode === "users" ? "Points" : "Photos"}
                     />
                     <ScrollView styles={styles.scrollView}>
-                        {this.state.entries.map((data) => {
+                        {this.state.selectedMode === "users" ? this.state.userEntries.map((data) => {
                             return(
                                 <LeaderboardEntry data={data} key={data.place} currentUserID={this.props.computingID}/>
+                            )
+                        }) : this.state.landmarkEntries.map((data) => {
+                            return(
+                                <LeaderboardEntry data={data} key={data.place} />
                             )
                         })}
                     </ScrollView>
@@ -153,5 +193,17 @@ const styles = StyleSheet.create({
     },
     dialog: {
         height: '70%'
+    },
+    modesView: {
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    modeRadio: {
+        flex: 1,
+        flexDirection: 'row',
+        paddingLeft: "5%",
+        paddingRight: "5%",
+        alignContent: 'center',
+        alignItems: 'center'
     }
 })
