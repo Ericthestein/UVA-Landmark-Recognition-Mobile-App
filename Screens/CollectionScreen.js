@@ -427,12 +427,12 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        left: 0,
+        right: 0,
         bottom: 0,
     },
     siteGetterButton: {
         position: 'absolute',
-        right: 0,
+        left: 0,
         bottom: 0,
     },
     pickerStyle: {

@@ -89,7 +89,7 @@ export default class Leaderboard extends Component {
         let leaderboardData = leaderboardDataSnapshot.val()
         let keys = Object.keys(leaderboardData)
 
-        for (var i = 0; i < keys.length; ++i) {
+        for (var i = 0; i < Math.min(100, keys.length); ++i) {
             let newEntry = {
                 key: keys[i],
                 value: leaderboardData[keys[i]],

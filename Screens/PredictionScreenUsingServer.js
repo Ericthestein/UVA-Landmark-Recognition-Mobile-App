@@ -266,7 +266,7 @@ export default class PredictionScreenUsingServer extends React.Component {
                     borderRadius={20}
                     textSize={16}
                     raiseLevel={6}
-                >Were we wrong? Click here to help train!</AwesomeButton>}
+                >Were we wrong? Press me to help train!</AwesomeButton>}
             </View>
         )
     }

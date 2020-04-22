@@ -10,7 +10,7 @@ const siteNames = [
     'Rotunda',
     'Old Cabell Hall',
     'Newcomb Hall',
-    'Bravo Hall',
+    'Bavaro Hall',
     'Alumni Hall',
     'Alderman Library',
     'Jefferson Hall/Hotel',
