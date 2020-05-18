@@ -7,7 +7,7 @@ import {
     StatusBar,
     Image,
     TouchableOpacity,
-    Dimensions, Platform, Alert
+    Dimensions, Platform, Alert, ImageBackground
 } from 'react-native'
 import {AsyncStorage} from "react-native"
 import * as ImagePicker from 'expo-image-picker'
@@ -27,6 +27,8 @@ let class_names = ['AcademicalVillage', 'AldermanLibrary', 'AlumniHall', 'Aquati
     'ThorntonHall', 'UniversityChapel']
 
 const predictionsLimit = 3; // The number of predicted classes to display per prediction (in order of descending confidence)
+
+let backgroundImage = '../assets/RotundaBackground.png';
 
 /**
  * The main component used by the Prediction screen
@@ -225,48 +227,55 @@ export default class PredictionScreenUsingServer extends React.Component {
     }
 
     render() {
+        let imageWrapperOpacity = 1//this.state.image ? 1 : 0.5;
         return (
             <View style={styles.container}>
-                <StatusBar barStyle='light-content' />
-                <Text style={styles.title}>Predict Landmark</Text>
-                <TouchableOpacity
-                    style={styles.imageWrapper}
-                    onPress={this.selectImage}>
-                    {this.state.image && <Image source={{uri: this.state.image}} style={styles.imageContainer} />}
-                    <Text style={styles.transparentText}>Tap to choose image</Text>
-                </TouchableOpacity>
-                <View style={styles.predictionWrapper}>
-                    <Text style={styles.predictionsTitle}>
-                        {this.state.predicting ? 'Predicting...' : (this.state.predictionsToDisplay.length > 0 ? "Predictions" : "")}
-                    </Text>
-                    <View style={styles.predictionsContainer}>
-                        {!this.state.predicting && this.state.predictionsToDisplay.map((prediction, key) => {
-                            return(
-                                <Text key={key} style={styles.predictionText}>#{key + 1}: {prediction.className} - {prediction.displayConfidence}%</Text>
-                            )
-                        })}
+                <ImageBackground
+                    style={styles.imageBackground}
+                    source={require(backgroundImage)}
+                >
+                    <StatusBar barStyle='light-content' />
+                    <Text style={styles.title}>Predict Landmark</Text>
+                    <TouchableOpacity
+                        style={{...styles.imageWrapper, opacity: imageWrapperOpacity}}
+                        onPress={this.selectImage}
+                    >
+                        {this.state.image && <Image source={{uri: this.state.image}} style={styles.imageContainer} />}
+                        {!this.state.image && <Text style={styles.transparentText}>Tap to choose image</Text>}
+                    </TouchableOpacity>
+                    <View style={styles.predictionWrapper}>
+                        <Text style={styles.predictionsTitle}>
+                            {this.state.predicting ? 'Predicting...' : (this.state.predictionsToDisplay.length > 0 ? "Predictions" : "")}
+                        </Text>
+                        <View style={styles.predictionsContainer}>
+                            {!this.state.predicting && this.state.predictionsToDisplay.map((prediction, key) => {
+                                return(
+                                    <Text key={key} style={styles.predictionText}>#{key + 1}: {prediction.className} - {prediction.displayConfidence}%</Text>
+                                )
+                            })}
+                        </View>
                     </View>
-                </View>
-                <AwesomeButton
-                    onPress={this.takePicture}
-                    width={2 * width / 5}
-                    height={100}
-                    style={styles.takePictureButton}
-                    backgroundColor={'#36de00'}
-                    borderRadius={20}
-                    textSize={24}
-                    raiseLevel={6}
-                >Take Picture</AwesomeButton>
-                {this.state.predictionsToDisplay.length > 0 && <AwesomeButton
-                    onPress={this.useImageForTraining}
-                    width={4.5 * width / 5}
-                    height={50}
-                    style={styles.wrongButton}
-                    backgroundColor={'#8948de'}
-                    borderRadius={20}
-                    textSize={16}
-                    raiseLevel={6}
-                >Were we wrong? Press me to help train!</AwesomeButton>}
+                    <AwesomeButton
+                        onPress={this.takePicture}
+                        width={2 * width / 5}
+                        height={100}
+                        style={styles.takePictureButton}
+                        backgroundColor={'#36de00'}
+                        borderRadius={20}
+                        textSize={24}
+                        raiseLevel={6}
+                    >Take Picture</AwesomeButton>
+                    {this.state.predictionsToDisplay.length > 0 && <AwesomeButton
+                        onPress={this.useImageForTraining}
+                        width={4.5 * width / 5}
+                        height={50}
+                        style={styles.wrongButton}
+                        backgroundColor={'#8948de'}
+                        borderRadius={20}
+                        textSize={16}
+                        raiseLevel={6}
+                    >Were we wrong? Press me to help train!</AwesomeButton>}
+                </ImageBackground>
             </View>
         )
     }
@@ -325,11 +334,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 125,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white',
     },
     transparentText: {
-        color: '#ffffff',
-        opacity: 0.7
+        color: '#f11a24',
+        opacity: 1,
+        fontSize: 32,
+        fontWeight: 'bold',
+        textAlign: 'center'
     },
     footer: {
         marginTop: 40
@@ -355,5 +368,11 @@ const styles = StyleSheet.create({
     wrongButton: {
         position: 'absolute',
         bottom: 140
-    }
+    },
+    imageBackground: {
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        alignItems: 'center'
+    },
 })
