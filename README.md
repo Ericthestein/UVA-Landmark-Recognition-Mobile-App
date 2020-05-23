@@ -1,6 +1,6 @@
 # UVA Landmark Recognition Mobile App
 
-This repository houses the source code for the UVA Landmark Recognition App, currently available on iOS via [TestFlight](https://testflight.apple.com/join/qwiaF1SD) and on Android via the [Google Play Store](https://play.google.com/store/apps/details?id=com.ericstein.uvalandmarkrecognition&hl=en_US).
+This repository houses the source code for the UVA Landmark Recognition App, currently available on iOS via the [App Store](https://apps.apple.com/us/app/uva-landmark-recognition/id1485524207?ls=1) and on Android via the [Google Play Store](https://play.google.com/store/apps/details?id=com.ericstein.uvalandmarkrecognition&hl=en_US).
 
 This app has two main use cases: 
 1) acquiring data for use in training a computer vision model
