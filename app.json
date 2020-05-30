@@ -4,8 +4,7 @@
     "description": "No description",
     "slug": "uva-historical-landmark-recognition",
     "privacy": "unlisted",
-    "sdkVersion": "37.0.0",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "icon": "./icon.png",
@@ -23,10 +22,18 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ericstein.uvalandmarkrecognition"
+      "bundleIdentifier": "com.ericstein.uvalandmarkrecognition",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We request permission to use your camera for the following: 1) identifying the UVA landmark your device is pointing at, and 2) collecting data for use in training our computer vision model. Only images you confirm will be sent to our servers for prediction or training.",
+        "NSPhotoLibraryUsageDescription": "We request permission to access your photo library for identifying the UVA landmark depicted in a photo stored on your device. Only photos you confirm will be sent to our servers for prediction."
+      }
     },
     "android": {
-	"package": "com.ericstein.uvalandmarkrecognition"
+      "package": "com.ericstein.uvalandmarkrecognition",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
     }
   }
 }
