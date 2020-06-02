@@ -11,3 +11,6 @@ For data storage, this app uses Firebase. Firebase project keys can be specified
 
 ## Prediction
 Once the prediction screen is initialized (`Screens/PredictionScreen.js`), a model is downloaded from a pre-defined URL and loaded using [tf.js](https://www.tensorflow.org/js). Afterwards, users are able to provide an image by either selecting one from their device's image library or taking a photo using their device's camera. This image is then converted into a tensor and appropriately pre-processed to allow for prediction to occur. Upon prediction, the app displays the top-3 prediction results along with their confidence metrics.
+
+# Machine Learning
+A walkthrough of the machine learning side to this project can be found at https://github.com/sg2nq/UVA-Landmark-Recognition.
