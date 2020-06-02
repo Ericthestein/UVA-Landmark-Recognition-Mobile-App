@@ -18,7 +18,7 @@ import * as firebase from 'firebase';
 const { height, width } = Dimensions.get('window');
 
 // Link to the server
-let SERVER_LINK = 'http://35.231.33.254/predict?msg='
+let SERVER_LINK = 'http://35.237.224.241/predict?msg=' //'http://35.231.33.254/predict?msg='
 
 // Model-Friendly class names; edit these depending on your sites and how you trained your model to distinguish between classes
 let class_names = ['AcademicalVillage', 'AldermanLibrary', 'AlumniHall', 'AquaticFitnessCenter',
