@@ -258,7 +258,7 @@ export default class PredictionScreenUsingServer extends React.Component {
                     <AwesomeButton
                         onPress={this.takePicture}
                         width={2 * width / 5}
-                        height={100}
+                        height={height * 0.1}
                         style={styles.takePictureButton}
                         backgroundColor={'#36de00'}
                         borderRadius={20}
@@ -268,7 +268,7 @@ export default class PredictionScreenUsingServer extends React.Component {
                     {this.state.predictionsToDisplay.length > 0 && <AwesomeButton
                         onPress={this.useImageForTraining}
                         width={4.5 * width / 5}
-                        height={50}
+                        height={height * 0.05}
                         style={styles.wrongButton}
                         backgroundColor={'#8948de'}
                         borderRadius={20}
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     },
     wrongButton: {
         position: 'absolute',
-        bottom: 140
+        bottom: height * 0.14
     },
     imageBackground: {
         position: 'absolute',
