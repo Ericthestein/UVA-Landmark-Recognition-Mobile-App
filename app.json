@@ -4,7 +4,7 @@
     "description": "No description",
     "slug": "uva-historical-landmark-recognition",
     "privacy": "unlisted",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "icon": "./icon.png",
@@ -30,7 +30,7 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE"
       ],
-      "versionCode": 3
+      "versionCode": 4
     }
   }
 }
