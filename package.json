@@ -10,12 +10,30 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.11",
+    "@tensorflow-models/mobilenet": "^2.1.0",
+    "@tensorflow/tfjs": "^3.11.0",
+    "@tensorflow/tfjs-react-native": "^0.8.0",
     "expo": "~43.0.2",
+    "expo-camera": "~12.0.3",
+    "expo-gl": "^11.0.3",
+    "expo-image-picker": "~11.0.3",
+    "expo-permissions": "~13.0.3",
     "expo-status-bar": "~1.1.0",
+    "firebase": "7.9.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-web": "0.17.1"
+    "react-native-elements": "^3.4.2",
+    "react-native-fs": "^2.18.0",
+    "react-native-gesture-handler": "^1.10.3",
+    "react-native-material-dropdown-v2": "^0.11.1",
+    "react-native-paper": "^4.10.0",
+    "react-native-really-awesome-button": "^1.6.0",
+    "react-native-safe-area-context": "^3.3.2",
+    "react-native-web": "0.17.1",
+    "react-navigation": "^4.4.4",
+    "react-navigation-material-bottom-tabs": "^2.3.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
