@@ -1,32 +1,36 @@
 {
   "expo": {
-    "name": "uva-landmark-recognition-mobile-app-2",
-    "slug": "uva-landmark-recognition-mobile-app-2",
-    "version": "1.0.0",
+    "name": "UVA Historical Landmark Recognition",
+    "description": "No description",
+    "slug": "uva-historical-landmark-recognition",
+    "privacy": "unlisted",
+    "version": "1.6.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+    "primaryColor": "#cccccc",
+    "icon": "./icon.png",
+    "packagerOpts": {
+      "assetExts": [
+        "ttf",
+        "mp4",
+        "otf",
+        "xml"
+      ]
     },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ericstein.uvalandmarkrecognition",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We request permission to use your camera for the following: 1) identifying the UVA landmark your device is pointing at, and 2) collecting data for use in training our computer vision model. Only images you confirm will be sent to our servers for prediction or training.",
+        "NSPhotoLibraryUsageDescription": "We request permission to access your photo library for identifying the UVA landmark depicted in a photo stored on your device. Only photos you confirm will be sent to our servers for prediction."
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "android": {
+      "package": "com.ericstein.uvalandmarkrecognition",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ],
+      "versionCode": 3
     }
   }
 }
